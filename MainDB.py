@@ -5,15 +5,14 @@ import uuid
 import threading
 import time
 import random
-# import mysql.connector
 
 mysql = MySQL()
 
 class FlaskApp(Flask):
     def __init__(self, *args, **kwargs):
         super(FlaskApp, self).__init__(*args, **kwargs)
-        self.config['MYSQL_DATABASE_USER'] = 'root'
-        self.config['MYSQL_DATABASE_PASSWORD'] = 'andrzej137'
+        self.config['MYSQL_DATABASE_USER'] = 'rsd'
+        self.config['MYSQL_DATABASE_PASSWORD'] = 'rsd2018'
         self.config['MYSQL_DATABASE_DB'] = 'rsd2018'
         self.config['MYSQL_DATABASE_HOST'] = 'localhost'
 
@@ -76,8 +75,8 @@ app = FlaskApp(__name__)
 
 
 # MySQL configurations
-app.config['MYSQL_DATABASE_USER'] = 'root'
-app.config['MYSQL_DATABASE_PASSWORD'] = 'andrzej137'
+app.config['MYSQL_DATABASE_USER'] = 'rsd'
+app.config['MYSQL_DATABASE_PASSWORD'] = 'rsd2018'
 app.config['MYSQL_DATABASE_DB'] = 'rsd2018'
 app.config['MYSQL_DATABASE_HOST'] = 'localhost'
 
@@ -194,30 +193,21 @@ def postlog_entry():
     # 201 Created
     return make_response(jsonify({'log_entry': last_row_id}),201)
 
-
 @app.route('/event_types', methods=['GET'])
 def get_event_types():
     return jsonify({'EventTypes' : EventTypes})
 
-
 @app.route('/orders', methods=['GET'])
 def get_orders():
     r = []
-    #temp = mysql.connector.connect(database="rsd2018")
-    #cur = temp.cursor()
-    con = mysql.connect()
-    cur = con.cursor()
-    #select_stmt = ("select id, blue, red, yellow, status from rsd2018.jobs")
-    #cur.execute("""SELECT * FROM rsd2018.jobs""")
+    cur = mysql.connect().cursor()
     cur.execute('''select id, blue, red, yellow, status from rsd2018.jobs''')
-    #cur.execute(select_stmt)
     for row in cur.fetchall():
-        r.append({'id': row[0], 'blue': row[1], 'red': row[2], 'yellow': row[3], 'status': StatusText[row[4]]})
+        r.append({'id':row[0], 'blue':row[1], 'red':row[2], 'yellow':row[3], 'status':StatusText[row[4]]})
 
     cur.close()
 
-    return jsonify({'orders': r})
-
+    return jsonify({'orders' : r})
 
 @app.route('/orders/<int:order_id>', methods=['GET'])
 def get_order(order_id):
