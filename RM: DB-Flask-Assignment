@@ -1,0 +1,4 @@
+Download MySQL v8 DB and set it up (port, password)
+Load db_export - blueprint for db, tables will be empty at the beginning
+Load MainDB.py - it loads rows (orders) into a table
+Load clienttest.py - it takes first not-taken order, proceeds/updates it and deletes it
