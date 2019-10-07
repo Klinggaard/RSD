@@ -8,7 +8,6 @@ __1: install mysql-server__
     sudo apt-get install mysql-server
 ```
 
-
 __2: start mysql and login to the mysql and go through the installation. Make sure not to install password verification addon.__
 ```
 $   sudo systemctl start mysql
