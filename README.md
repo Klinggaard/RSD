@@ -62,3 +62,17 @@ __3: References:__
 
 https://roslibpy.readthedocs.io/en/latest/readme.html#installation
 https://roslibpy.readthedocs.io/en/latest/reference/index.html#ros-setup
+
+## Opencv Setup 
+install:
+```
+    sudo apt-get install python-opencv
+```
+Check that is was installed correctly by running "python" and then import cv:
+```
+    import cv2 as cv
+    print(cv.__version__)
+```
+Reference: 
+https://docs.opencv.org/master/d2/de6/tutorial_py_setup_in_ubuntu.html
+
