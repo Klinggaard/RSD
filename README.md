@@ -1,6 +1,6 @@
 # RSD
 
-### mysql setup for ubuntu[$ == ShellCmd, > == sqlCmd]
+## mysql setup for ubuntu[$ == ShellCmd, > == sqlCmd]
 
 __1: install mysql-server__
 ```
@@ -38,3 +38,27 @@ __7: You should now be able to run the python script:__
 ```
 $   python3 rsd_2019_app_public.py
 ```
+
+## Setup roslibpy and starting a ros node
+__1: Install and setup__
+install roslibpy:
+```
+    pip install roslibpy
+```
+
+ROS Setup:
+```
+    sudo apt-get install -y ros-melodic-rosbridge-server
+    sudo apt-get install -y ros-melodic-tf2-web-republisher
+```
+
+__2: Running roslibpy__
+Before running any python script with a ros client(from roslibpy) in it, run this: 
+```
+    roslaunch rosbridge_server rosbridge_websocket.launch
+    rosrun tf2_web_republisher tf2_web_republisher
+```
+__3: References:__
+
+https://roslibpy.readthedocs.io/en/latest/readme.html#installation
+https://roslibpy.readthedocs.io/en/latest/reference/index.html#ros-setup
