@@ -39,6 +39,10 @@ __7: You should now be able to run the python script:__
 $   python3 rsd_2019_app_public.py
 ```
 
+## Install ros on pi
+install from source, guide in link:
+http://wiki.ros.org/Installation/Source
+
 ## Setup roslibpy and starting a ros node
 __1: Install and setup__
 install roslibpy:
