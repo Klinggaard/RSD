@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <package>
-  <name>RSD</name>
+  <name>robot_system_design</name>
   <version>0.9.1</version>
   <description>
     This package connects roslibpy to ur robot using caros_ur modules

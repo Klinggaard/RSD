@@ -7,10 +7,7 @@ URRobot::URRobot(){
     device = wc->findDevice("UR5");
     state = wc->getDefaultState();
     robot = new caros::SerialDeviceSIProxy(nh, "caros_universalrobot");
-
-    //shp:
     detector = new rw::proximity::CollisionDetector(wc, rwlibs::proximitystrategies::ProximityStrategyFactory::makeDefaultCollisionStrategy());
-
     // Wait for first state message, to make sure robot is ready
     ros::topic::waitForMessage<caros_control_msgs::RobotState>("/caros_universalrobot/caros_serial_device_service_interface/robot_state", nh);
     ros::spinOnce();

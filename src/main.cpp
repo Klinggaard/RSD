@@ -5,11 +5,11 @@
 
 #include <iostream>
 #include "ros/ros.h"
-#include "RSD/move_robot.h"
+#include "robot_system_design/move_robot.h"
 #include "URrobot.h"
 #include <rw/math/Q.hpp>
 
-bool add(RSD::move_robot::Request &req, RSD::move_robot::Response &res){
+bool add(robot_system_design::move_robot::Request &req, robot_system_design::move_robot::Response &res){
     //Move the robot with URRobot.h, NOT TESTED
     URRobot robot;
 
