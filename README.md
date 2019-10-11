@@ -39,6 +39,10 @@ __7: You should now be able to run the python script:__
 $   python3 rsd_2019_app_public.py
 ```
 
+## Install ros on pi
+install from source, guide in link:
+http://wiki.ros.org/Installation/Source
+
 ## Setup roslibpy and starting a ros node
 __1: Install and setup__
 install roslibpy:
@@ -66,13 +70,10 @@ https://roslibpy.readthedocs.io/en/latest/reference/index.html#ros-setup
 ## Opencv Setup 
 install:
 ```
-    sudo apt-get install python-opencv
+    sudo apt-get install python3-opencv
 ```
 Check that is was installed correctly by running "python" and then import cv:
 ```
     import cv2 as cv
     print(cv.__version__)
 ```
-Reference: 
-https://docs.opencv.org/master/d2/de6/tutorial_py_setup_in_ubuntu.html
-
