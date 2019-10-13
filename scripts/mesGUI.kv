@@ -1,0 +1,48 @@
+<Menu>:
+    manager: screen_manager
+    orientation: "vertical"
+    ActionBar:
+        size_hint_y: 0.1
+        ActionView:
+            ActionPrevious:
+            ActionButton:
+                text: "Control"
+                on_release: root.manager.current = "control"
+            ActionButton:
+                text: "Orders"
+                on_release: root.manager.current = "orders"
+            ActionButton:
+                text:"Help"
+                on_release: root.manager.current = "help"
+            ActionGroup:
+                text: 'EM Stop'
+                ActionButton
+                    text: 'EM Stop'
+    Manager:
+        id: screen_manager
+
+<MesControl>:
+
+
+<Help>:
+
+
+<MesOrders>:
+
+
+<Manager>:
+    controlScreen: controlScreen
+    helpScreen: helpScreen
+    orderScreen: orderScreen
+
+    MesControl:
+        id: controlScreen
+        name: 'control'
+
+    Help:
+        id: helpScreen
+        name: 'help'
+
+    MesOrders:
+        id: orderScreen
+        name: 'orders'
