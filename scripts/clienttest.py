@@ -30,5 +30,3 @@ print('ticket:' + ' ' + str(ticket))
 # DELETE, we 'processed' the order, so we delete it from the list
 stmndel = 'http://127.0.0.1:5000/orders/' + str(minimal_id) + '/' + str(ticket)
 responsedelete = requests.delete(stmndel)
-
-
