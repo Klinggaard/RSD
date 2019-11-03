@@ -77,3 +77,20 @@ Check that is was installed correctly by running "python" and then import cv:
     import cv2 as cv
     print(cv.__version__)
 ```
+
+## PyModbus
+__Install:__
+```
+    pip3 install -U pymodbus
+```
+
+__Dependencies:__
+
+*Twisted*:
+```
+    pip3 install twisted
+```
+
+__References:__
+https://pymodbus.readthedocs.io/en/latest/index.html
+https://twistedmatrix.com/trac/
