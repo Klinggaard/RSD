@@ -77,3 +77,9 @@ Check that is was installed correctly by running "python" and then import cv:
     import cv2 as cv
     print(cv.__version__)
 ```
+
+## PyModbus
+__install:__
+```
+    pip3 install -U pymodbus
+```
