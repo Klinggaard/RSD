@@ -64,16 +64,9 @@ def on_high_V_thresh_trackbar(val):
     cv.setTrackbarPos(high_V_name, window_detection_name, high_V)
 
 
-is_pi = False
-img_path = ""
-frame = None
-if gp.getuser() == "pi":
-    import picamera
-    is_pi = True
 
-else:
-    img_path = "images/kawasaki.png"
-    frame = cv.imread(img_path)
+img_path = "images/kawasaki.png"
+frame = cv.imread(img_path)
 
 
 cv.namedWindow(window_capture_name)
