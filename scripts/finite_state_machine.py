@@ -57,7 +57,7 @@ class FiniteStateMachine:
             self.state == 'Stopping'
         if trigger == 'Abort':
             self.state == 'Aborting'
-        if self.state == from_state:
+        elif self.state == from_state:
             for row in self.transition:
                 if np.array_equal(row, arr):
                     self.state = to_state
