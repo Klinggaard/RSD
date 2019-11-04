@@ -65,7 +65,7 @@ def on_high_V_thresh_trackbar(val):
 
 
 
-img_path = "images/kawasaki.png"
+img_path = "images/cartoon.png"
 frame = cv.imread(img_path)
 
 
