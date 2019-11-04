@@ -53,10 +53,12 @@ class FiniteStateMachine:
     def change_state(self, trigger, from_state, to_state):
         arr = np.array([trigger, from_state, to_state])
         flag = False
-        if trigger == 'Stop':
-            self.state == 'Stopping'
         if trigger == 'Abort':
-            self.state == 'Aborting'
+            self.state = 'Aborting'
+            print('transition from {} to {} was successful.'.format(from_state, to_state))
+        elif trigger == 'Stop':
+            self.state = 'Stopping'
+            print('transition from {} to {} was successful.'.format(from_state, to_state))
         elif self.state == from_state:
             for row in self.transition:
                 if np.array_equal(row, arr):
@@ -64,6 +66,6 @@ class FiniteStateMachine:
                     flag = True
                     print('transition from {} to {} is successful.'.format(from_state, to_state))
             if not flag:
-                print('transition from {} to {} is a failure.'.format(from_state, to_state))
+                print('transition from {} to {} failed.'.format(from_state, to_state))
         else:
             print('Wrong starting state, transition is impossible')

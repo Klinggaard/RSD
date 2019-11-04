@@ -1,3 +1,5 @@
+import datetime
+
 from kivy.app import App
 from kivy.factory import Factory
 from kivy.graphics.context_instructions import Color
@@ -9,13 +11,20 @@ from kivy.uix.boxlayout import BoxLayout
 from kivy.lang import Builder
 from kivy.core.window import Window
 from scripts.finite_state_machine import FiniteStateMachine as FSM
-
+from kivy.uix.label import Label
 from kivy.clock import Clock, mainthread
 from kivy.uix.gridlayout import GridLayout
 import threading
 import time
-
+from kivy.uix.image import Image
+import kivy.uix.effectwidget
+from kivy.core.window import Window
+from kivy.uix.floatlayout import FloatLayout
+from kivy.config import Config
 Window.clearcolor = (1,1,1,1)
+
+from kivy.config import Config
+
 
 Builder.load_file("mesGUI.kv")
 
@@ -42,7 +51,7 @@ class MesControl(Screen):
         self.state_machine.change_state('Start', 'Idle', 'Starting')
 
     def change_state_reset(self,instance):
-        self.state_machine.change_state('Reset', 'Complete', 'Resetting')
+        self.state_machine.change_state('Reset', self.state_machine.state, 'Resetting')
 
     def change_state_stopping(self, instance):
         self.state_machine.change_state('Stop', '*', 'Stopping')
@@ -52,6 +61,11 @@ class MesControl(Screen):
 
     def change_state_abort(self, instance):
         self.state_machine.change_state('Abort', '*', 'Aborting')
+
+    def on_timeout(self, instance):
+        label_text = 'PackML State:'
+
+        self.lbl_state.text = label_text + ' ' +  self.state_machine.state
 
     def __init__(self, **kwargs):
         # make sure we aren't overriding any important functionality
@@ -93,7 +107,19 @@ class MesControl(Screen):
         self.add_widget(on_off_buttons)
         self.add_widget(leftButtons)
 
-        ##Bind canvas to widget and set screen color
+        #Add packml state image
+        self.img = Image(source='images/packml.png', size_hint=(1, 0.8), pos_hint={'right':1.1, 'center_y':0.6}, opacity=0.8)
+        self.add_widget(self.img)
+
+        #schedule a task to update a label of where it is
+        self.lbl_state = Label(text='', font_size='30sp', pos_hint={ 'center_x':0.5, 'center_y':0.1})
+        self.lbl_state.size_hint = [None, None]
+        self.lbl_state.size =  self.lbl_state.texture_size
+        self.add_widget(self.lbl_state)
+        Clock.schedule_interval(self.on_timeout, 0.1)
+
+
+        #Bind canvas to widget and set screen color
         self.bind(size=self._update_rect, pos=self._update_rect)
         with self.canvas.before:
             Color(0.75, 0.75, 0.75, 1)  # colors range from 0-1 not 0-255
@@ -104,11 +130,6 @@ class MesControl(Screen):
 
     def start_main_thread(self, l_text):
         #initialize thread
-        threading.Thread(target=self.main_thread_loop).start()
-
-    def main_thread(self, label_text):
-        Clock.schedule_once(self.start_test, 0)
-        # Start a new thread with an infinite loop and stop the current one.
         threading.Thread(target=self.main_thread_loop).start()
 
     def main_thread_loop(self):
@@ -134,19 +155,14 @@ class MesControl(Screen):
                 #Stop MES and do some clearing after an abort
                 self.state_machine.change_state('SC', 'Clearing', 'Stopped')
             elif(execute_state == 'Stopping'):
-                #Stop MEs
+                #Stop MES
                 self.state_machine.change_state('SC', 'Stopping', 'Stopped')
 
             time.sleep(1)
 
-
-
-
     def _update_rect(self, instance, value):
         self.rect.pos = instance.pos
         self.rect.size = instance.size
-
-
 
 class Help(Screen):
     def __init__(self, **kwargs):
@@ -158,7 +174,6 @@ class Help(Screen):
         with self.canvas.before:
             Color(0.75, 0.75, 0.75, 1)  # colors range from 0-1 not 0-255
             self.rect = Rectangle(size=self.size, pos=self.pos)
-
 
     def _update_rect(self, instance, value):
         self.rect.pos = instance.pos
@@ -190,9 +205,6 @@ class Manager(ScreenManager):
 class MainApp(App):
 
     def on_stop(self):
-        # The Kivy event loop is about to stop, set a stop signal;
-        # otherwise the app window will close, but the Python process will
-        # keep running until all secondary threads exit.
         self.root.stop.set()
 
     def build(self):
