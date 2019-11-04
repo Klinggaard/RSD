@@ -3,6 +3,45 @@ import numpy as np
 
 class FiniteStateMachine:
 
+    transition = np.array([['Start', 'Idle', 'Starting'],
+                       ['SC', 'Starting', 'Execute'],
+                       ['SC', 'Execute', 'Completing'],
+                       ['SC', 'Completing', 'Complete'],
+                       ['Reset', 'Complete', 'Resetting'],
+                       ['Suspend', 'Execute', 'Suspending'],
+                       ['SC', 'Suspending', 'Suspended'],
+                       ['Unsuspend', 'Suspended', 'Unsuspending'],
+                       ['SC', 'Unsuspending', 'Execute'],
+                       ['Hold', 'Execute', 'Holding'],
+                       ['SC', 'Holding', 'Held'],
+                       ['Unhold', 'Held', 'Unholding'],
+                       ['SC', 'Unholding', 'Execute'],
+                       ['SC', 'Aborting', 'Aborted'],
+                       ['Clear', 'Aborted', 'Clearing'],
+                       ['SC', 'Clearing', 'Stopped'],
+                       ['SC', 'Stopping', 'Stopped'],
+                       ['Stop', '*', 'Stopping'],
+                       ['Abort', '*', 'Aborting'],
+                       ['Reset', 'Stopped', 'Resetting'],
+                       ['SC', 'Resetting', 'Idle']])
+
+    states_packml = ['Idle',
+                 'Starting',
+                 'Execute',
+                 'Completing',
+                 'Complete',
+                 'Resetting',
+                 'Unsuspending',
+                 'Suspended',
+                 'Suspending',
+                 'Unholding',
+                 'Held',
+                 'Holding',
+                 'Aborting',
+                 'Aborted',
+                 'Clearing',
+                 'Stopping',
+                 'Stopped']
     initial_state = 'Idle'
     state = ''
 
@@ -28,52 +67,3 @@ class FiniteStateMachine:
                 print('transition from {} to {} is a failure.'.format(from_state, to_state))
         else:
             print('Wrong starting state, transition is impossible')
-
-
-states_packml = ['Idle',
-                 'Starting',
-                 'Execute',
-                 'Completing',
-                 'Complete',
-                 'Resetting',
-                 'Unsuspending',
-                 'Suspended',
-                 'Suspending',
-                 'Unholding',
-                 'Held',
-                 'Holding',
-                 'Aborting',
-                 'Aborted',
-                 'Clearing',
-                 'Stopping',
-                 'Stopped']
-
-transition = np.array([['Start', 'Idle', 'Starting'],
-                       ['SC', 'Starting', 'Execute'],
-                       ['SC', 'Execute', 'Completing'],
-                       ['SC', 'Completing', 'Complete'],
-                       ['Reset', 'Complete', 'Resetting'],
-                       ['Suspend', 'Execute', 'Suspending'],
-                       ['SC', 'Suspending', 'Suspended'],
-                       ['Unsuspend', 'Suspended', 'Unsuspending'],
-                       ['SC', 'Unsuspending', 'Execute'],
-                       ['Hold', 'Execute', 'Holding'],
-                       ['SC', 'Holding', 'Held'],
-                       ['Unhold', 'Held', 'Unholding'],
-                       ['SC', 'Unholding', 'Execute'],
-                       ['SC', 'Aborting', 'Aborted'],
-                       ['Clear', 'Aborted', 'Clearing'],
-                       ['SC', 'Clearing', 'Stopped'],
-                       ['SC', 'Stopping', 'Stopped'],
-                       ['Stop', '*', 'Stopping'],
-                       ['Abort', '*', 'Aborting'],
-                       ['Reset', 'Stopped', 'Resetting'],
-                       ['SC', 'Resetting', 'Idle']])
-
-PackML = FiniteStateMachine(states_packml, transition)
-print(PackML.state)
-for line in transition:
-    PackML.change_state(line[0], line[1], line[2])
-    print(PackML.state)
-
-print(PackML.state)
