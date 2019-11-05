@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 from kivy.app import App
 from kivy.core.window import Window
 from kivy.graphics.context_instructions import Color
@@ -5,13 +6,15 @@ from kivy.graphics.vertex_instructions import Rectangle
 from kivy.lang import Builder
 from kivy.properties import ObjectProperty
 from kivy.uix.boxlayout import BoxLayout
-from kivy.uix.screenmanager import ScreenManager, Screen
 from scripts.GUI.MesControl import MesControl
 from scripts.GUI.MesOrders import MesOrders
 from kivy.config import Config
+from kivy.uix.screenmanager import ScreenManager, Screen
 
 #Set window size
 Window.size = (1853, 1016)
+#Set to true for fullscreen
+Window.fullscreen = False
 Window.clearcolor = (1,1,1,1)
 Config.set('input', 'mouse', 'mouse,multitouch_on_demand')
 

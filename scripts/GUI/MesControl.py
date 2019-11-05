@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 import threading
 import time
 
@@ -9,9 +10,7 @@ from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.button import Button
 from kivy.uix.image import Image
 from kivy.uix.screenmanager import Screen
-
 from scripts.finite_state_machine import FiniteStateMachine as FSM
-
 
 def callback(instance):
     print('The button <%s> is being pressed' % instance.text)

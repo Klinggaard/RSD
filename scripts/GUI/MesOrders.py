@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 from kivy.graphics.context_instructions import Color
 from kivy.graphics.vertex_instructions import Rectangle
 from kivy.properties import BooleanProperty
