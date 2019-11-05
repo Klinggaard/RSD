@@ -23,6 +23,40 @@
 <Help>:
 
 
+
+<SelectableLabel>:
+    # Draw a background to indicate selection
+    canvas.before:
+        Color:
+            rgba: (.0, 0.9, .1, .3) if self.selected else (0, 0, 0, 1)
+        Rectangle:
+            pos: self.pos
+            size: self.size
+    label1_text: 'label 1 text'
+    label2_text: 'label 2 text'
+    label3_text: 'label 3 text'
+    pos: self.pos
+    size: self.size
+    Label:
+        id: id_label1
+        text: root.label1_text
+    Label:
+        id: id_label2
+        text: root.label2_text
+    Label:
+        id: id_label3
+        text: root.label3_text
+
+<RV>:
+    viewclass: 'SelectableLabel'
+    SelectableRecycleBoxLayout:
+        default_size: None, dp(56)
+        default_size_hint: 1, None
+        size_hint_y: None
+        height: self.minimum_height
+        orientation: 'vertical'
+        multiselect: True
+        touch_multiselect: True
 <MesOrders>:
 
 
