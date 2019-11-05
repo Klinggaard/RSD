@@ -132,7 +132,7 @@ class MesControl(Screen):
         #Bind canvas to widget and set screen color
         self.bind(size=self._update_rect, pos=self._update_rect)
         with self.canvas.before:
-            Color(0.75, 0.75, 0.75, 1)  # colors range from 0-1 not 0-255
+            Color(1, 1, 1, 1)  # colors range from 0-1 not 0-255
             self.rect = Rectangle(size=self.size, pos=self.pos)
 
         #Create box to highligh current state
@@ -152,7 +152,6 @@ class MesControl(Screen):
 
     def main_thread_loop(self):
         while True:
-            ##BEGIN SWITCH CASE HERE, EXECUTE THE MES LOOP
             print('[State] {}'.format(self.state_machine.state))
             execute_state = self.state_machine.state
             if(execute_state == 'Starting'):

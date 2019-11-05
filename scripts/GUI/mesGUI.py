@@ -8,10 +8,12 @@ from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.screenmanager import ScreenManager, Screen
 from scripts.GUI.MesControl import MesControl
 from scripts.GUI.MesOrders import MesOrders
+from kivy.config import Config
 
 #Set window size
 Window.size = (1853, 1016)
 Window.clearcolor = (1,1,1,1)
+Config.set('input', 'mouse', 'mouse,multitouch_on_demand')
 
 Builder.load_file("mesGUI.kv")
 
@@ -27,7 +29,7 @@ class Help(Screen):
         ##Bind canvas to widget and set screen color
         self.bind(size=self._update_rect, pos=self._update_rect)
         with self.canvas.before:
-            Color(0.75, 0.75, 0.75, 1)  # colors range from 0-1 not 0-255
+            Color(1, 1, 1, 1)  # colors range from 0-1 not 0-255
             self.rect = Rectangle(size=self.size, pos=self.pos)
 
     def _update_rect(self, instance, value):
