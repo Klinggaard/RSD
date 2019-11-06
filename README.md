@@ -67,6 +67,13 @@ __3: References:__
 https://roslibpy.readthedocs.io/en/latest/readme.html#installation
 https://roslibpy.readthedocs.io/en/latest/reference/index.html#ros-setup
 
+## Install picamera
+https://picamera.readthedocs.io/en/release-1.13/
+install:
+```
+    sudo apt-get install python3-picamera
+```
+
 ## Opencv Setup 
 install:
 ```
