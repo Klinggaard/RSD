@@ -27,6 +27,12 @@ from pymodbus.transaction import ModbusRtuFramer, ModbusAsciiFramer
 from twisted.internet.task import LoopingCall
 
 #---------------------------------------------------------------------------#
+# import image related libraries
+#---------------------------------------------------------------------------#
+import cv2 as cv
+from scripts.image_processing import capture_image,
+
+#---------------------------------------------------------------------------#
 # configure the service logging
 #---------------------------------------------------------------------------#
 import logging
@@ -37,6 +43,50 @@ log.setLevel(logging.DEBUG)
 #---------------------------------------------------------------------------#
 # define your callback process
 #---------------------------------------------------------------------------#
+
+
+def getCoils(slave, address, n):
+    ''' Returns a list of coils
+
+    :param slave: A client context
+    :param address: The starting address
+    :param n: The amount of values to retrieve
+    :return: The requested values from address:address+n
+    '''
+    return slave.getValues(1, address, n)  # 1 is defined by pymodbus
+
+
+def setCoils(slave, address, value):
+    ''' Sets coils to value
+
+    :param slave: A client context
+    :param address: The starting address
+    :param value: List of values
+    '''
+    slave.setValues(1, address, value)  # 1 is defined by pymodbus
+
+
+def getHoldings(slave, address, n):
+    ''' Returns a list of holding registers
+
+    :param slave: A client context
+    :param address: The starting address
+    :param n: The amount of values to retrieve
+    :return: The requested values from address:address+n
+    '''
+    return slave.getValues(3, address, n)  # 3 is defined by pymodbus
+
+
+def setHoldings(slave, address, value):
+    ''' Sets registers to value
+
+    :param slave: A client context
+    :param address: The starting address
+    :param value: List of values
+    '''
+    slave.setValues(3, address, value)  # 3 is defined by pymodbus
+
+
 def updating_writer(a):
     ''' A worker process that runs every so often and
     updates live values of the context. It should be noted
@@ -49,20 +99,20 @@ def updating_writer(a):
     register = 3
     slave_id = 0x00
     address  = 0x10
-    values   = context[slave_id].getValues(register, address, count=5)
-    values   = [v + 1 for v in values]
-    log.debug("new values: " + str(values))
-    context[slave_id].setValues(register, address, values)
-    print("here I can write code")
+
+    if getCoils(context[slave_id], 1, 1):  # System asked for brick info
+
+        setCoils(context[slave_id], 1, False)
+
 
 #---------------------------------------------------------------------------#
 # initialize your data store
 #---------------------------------------------------------------------------#
 store = ModbusSlaveContext(
-    di = ModbusSequentialDataBlock(0, [17]*100),
-    co = ModbusSequentialDataBlock(0, [17]*100),
-    hr = ModbusSequentialDataBlock(0, [17]*100),
-    ir = ModbusSequentialDataBlock(0, [17]*100))
+    di=ModbusSequentialDataBlock(0, [0]*100),
+    co=ModbusSequentialDataBlock(0, [False]*100),
+    hr=ModbusSequentialDataBlock(0, [0]*100),
+    ir=ModbusSequentialDataBlock(0, [0]*100))
 context = ModbusServerContext(slaves=store, single=True)
 
 #---------------------------------------------------------------------------#
