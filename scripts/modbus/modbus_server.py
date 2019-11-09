@@ -45,7 +45,7 @@ log.setLevel(logging.DEBUG)
 #---------------------------------------------------------------------------#
 
 
-def getCoils(slave, address, n):
+def get_coils(slave, address, n):
     ''' Returns a list of coils
 
     :param slave: A client context
@@ -56,7 +56,7 @@ def getCoils(slave, address, n):
     return slave.getValues(1, address, n)  # 1 is defined by pymodbus
 
 
-def setCoils(slave, address, value):
+def set_coils(slave, address, value):
     ''' Sets coils to value
 
     :param slave: A client context
@@ -66,7 +66,7 @@ def setCoils(slave, address, value):
     slave.setValues(1, address, value)  # 1 is defined by pymodbus
 
 
-def getHoldings(slave, address, n):
+def get_holdings(slave, address, n):
     ''' Returns a list of holding registers
 
     :param slave: A client context
@@ -77,7 +77,7 @@ def getHoldings(slave, address, n):
     return slave.getValues(3, address, n)  # 3 is defined by pymodbus
 
 
-def setHoldings(slave, address, value):
+def set_holdings(slave, address, value):
     ''' Sets registers to value
 
     :param slave: A client context
@@ -100,9 +100,10 @@ def updating_writer(a):
     slave_id = 0x00
     address  = 0x10
 
-    if getCoils(context[slave_id], 1, 1):  # System asked for brick info
-
-        setCoils(context[slave_id], 1, False)
+    if get_coils(context[slave_id], 1, 1):  # System asked for brick info
+        colours = check_bricks()
+        set_holdings(context[slave_id], address, colours)
+        set_coils(context[slave_id], 1, False)
 
 
 #---------------------------------------------------------------------------#
