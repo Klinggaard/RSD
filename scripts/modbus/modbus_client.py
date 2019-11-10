@@ -1,35 +1,28 @@
 #!/usr/bin/env python
 from pymodbus.client.sync import ModbusTcpClient as ModbusClient
+import time
 
 
-def read_registers(client, address, amount=1):
-    '''
-    :param client: A ModbusTcpClient
-    :param address: The first address
-    :param amount: The amount of registers that should be read
-    :return: A list of the values read
-    '''
-    return client.read_holding_registers(address, amount).registers
+class Client(ModbusClient):
+    def __init__(self, ip="localhost", port=5020):
+        super().__init__(host=ip, port=port)
 
+    def read_registers(self, address, amount=1):
+        '''
+        :param client: A ModbusTcpClient
+        :param address: The first address
+        :param amount: The amount of registers that should be read
+        :return: A list of the values read
+        '''
+        return self.read_holding_registers(address, amount).registers
 
-def write_register(client, address, val):
-    '''
-    :param client: A ModbusTcpClient
-    :param address: The first address
-    :param val: a list of values to be written
+    def get_brick_colours(self):
+        """
 
-    NOTE:
-    It is possible to write to more than one register by parsing a list with more than one object
-    '''
-    client.write_registers(address, val)
+        :return: A list of colour codes
+        """
+        self.write_coil(0, True)  # Setting coil 0 to True will tell the RPi to take and process and image
+        while self.read_coils(0, 1):  # RPi working - coil will be set to False when RPi is done
+            time.sleep(0.3)
 
-
-if __name__ == "__main__":
-    client = ModbusClient('localhost', port=5020)
-
-    client.connect()
-
-    write_register(client, 0, [1,2,3])
-    print(read_registers(client,0,3))
-
-    client.close()
+        return self.read_registers(address=3, amount=3)
