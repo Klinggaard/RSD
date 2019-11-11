@@ -45,7 +45,8 @@ def _capture_image():
     # grab an image from the camera
     camera.capture(rawCapture, format="bgr")
 
-    cv.imshow("img", rawCapture)
+    cv.imshow("img", rawCapture.array)
+    cv.waitKey(0)
     return rawCapture.array
 
 

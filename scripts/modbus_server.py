@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 '''
 Pymodbus Server With Updating Thread
 --------------------------------------------------------------------------
@@ -30,7 +30,7 @@ from twisted.internet.task import LoopingCall
 # import image related libraries
 #---------------------------------------------------------------------------#
 import cv2 as cv
-from scripts.image_processing import check_bricks
+from image_processing import check_bricks
 
 #---------------------------------------------------------------------------#
 # configure the service logging
@@ -99,11 +99,11 @@ def updating_writer(a):
     register = 3
     slave_id = 0x00
     address  = 0x10
-    # print(get_coils(context[slave_id], 0, 1), "\n", get_holdings(context[slave_id], 0, 3))
-    if get_coils(context[slave_id], 1, 1):  # System asked for brick info
+    print(get_coils(context[slave_id], 0, 1), "\n", get_holdings(context[slave_id], 0, 3))
+    if get_coils(context[slave_id], 0, 1)[0]:  # System asked for brick info
         colours = check_bricks()
-        set_holdings(context[slave_id], address, colours)
-        set_coils(context[slave_id], 1, False)
+        set_holdings(context[slave_id], 0, colours)
+        set_coils(context[slave_id], 0, False)
 
 #---------------------------------------------------------------------------#
 # initialize your data store
@@ -132,4 +132,4 @@ identity.MajorMinorRevision = '1.0'
 time = 5 # 5 seconds delay
 loop = LoopingCall(f=updating_writer, a=(context,))
 loop.start(time, now=False) # initially delay by time
-StartTcpServer(context, identity=identity, address=("localhost", 5020))
+StartTcpServer(context, identity=identity, address=("raspberrypi.local", 5020))
