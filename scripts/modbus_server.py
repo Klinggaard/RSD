@@ -30,7 +30,7 @@ from twisted.internet.task import LoopingCall
 # import image related libraries
 #---------------------------------------------------------------------------#
 import cv2 as cv
-#from scripts.image_processing import check_bricks
+from scripts.image_processing import check_bricks
 
 #---------------------------------------------------------------------------#
 # configure the service logging
@@ -99,13 +99,11 @@ def updating_writer(a):
     register = 3
     slave_id = 0x00
     address  = 0x10
-    print(get_coils(context[slave_id], 0, 1), "\n", get_holdings(context[slave_id], 0, 3))
-    '''
+    # print(get_coils(context[slave_id], 0, 1), "\n", get_holdings(context[slave_id], 0, 3))
     if get_coils(context[slave_id], 1, 1):  # System asked for brick info
         colours = check_bricks()
         set_holdings(context[slave_id], address, colours)
         set_coils(context[slave_id], 1, False)
-    '''
 
 #---------------------------------------------------------------------------#
 # initialize your data store
