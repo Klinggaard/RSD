@@ -76,7 +76,6 @@ class MesOrders(Screen):
             Color(1, 1, 1, 1)  # colors range from 0-1 not 0-255
             self.rect = Rectangle(size=self.size, pos=self.pos)
 
-
     def _update_rect(self, instance, value):
         self.rect.pos = instance.pos
         self.rect.size = instance.size

@@ -45,6 +45,7 @@ class Manager(ScreenManager):
     helpScreen = ObjectProperty(None)
     orderScreen = ObjectProperty(None)
 
+
 class MainApp(App):
     def build(self):
         return Menu()
