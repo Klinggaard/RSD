@@ -21,6 +21,9 @@ high_H_name = 'High H'
 high_S_name = 'High S'
 high_V_name = 'High V'
 
+
+
+
 def on_low_H_thresh_trackbar(val):
     global low_H
     global high_H
@@ -65,27 +68,76 @@ def on_high_V_thresh_trackbar(val):
 
 
 
-img_path = "images/cartoon.png"
+
+
+img_path = "images/blob.jpg"
 frame = cv.imread(img_path)
+
+max_val = frame.shape[1]
+max_x = frame.shape[0]
+min_x = 0
+max_y = frame.shape[1]
+min_y = 0
+
+def on_min_x_thresh_trackbar(val):
+    global min_x
+    global max_x
+    min_x = val
+    min_x = min(max_x - 1, min_x)
+    cv.setTrackbarPos("min x", window_detection_name, min_x)
+
+def on_max_x_thresh_trackbar(val):
+    global min_x
+    global max_x
+    max_x = val
+    max_x = max(max_x, min_x+1)
+    cv.setTrackbarPos("max x", window_detection_name, max_x)
+
+def on_min_y_thresh_trackbar(val):
+    global min_y
+    global max_y
+    min_y = val
+    min_y = min(max_y - 1, min_y)
+    cv.setTrackbarPos("min y", window_detection_name, min_y)
+
+def on_max_y_thresh_trackbar(val):
+    global min_y
+    global max_y
+    max_y = val
+    max_y = max(max_y, min_y + 1)
+    cv.setTrackbarPos("max y", window_detection_name, max_y)
 
 
 cv.namedWindow(window_capture_name)
 cv.namedWindow(window_detection_name)
+
+
 cv.createTrackbar(low_H_name, window_detection_name, low_H, max_value_H, on_low_H_thresh_trackbar)
 cv.createTrackbar(high_H_name, window_detection_name, high_H, max_value_H, on_high_H_thresh_trackbar)
 cv.createTrackbar(low_S_name, window_detection_name, low_S, max_value, on_low_S_thresh_trackbar)
 cv.createTrackbar(high_S_name, window_detection_name, high_S, max_value, on_high_S_thresh_trackbar)
 cv.createTrackbar(low_V_name, window_detection_name, low_V, max_value, on_low_V_thresh_trackbar)
 cv.createTrackbar(high_V_name, window_detection_name, high_V, max_value, on_high_V_thresh_trackbar)
+
+
+cv.createTrackbar("min x", window_detection_name, min_x, max_val, on_min_x_thresh_trackbar)
+cv.createTrackbar("max x", window_detection_name, max_x, max_val, on_max_x_thresh_trackbar)
+cv.createTrackbar("min y", window_detection_name, min_y, max_val, on_min_y_thresh_trackbar)
+cv.createTrackbar("max y", window_detection_name, max_y, max_val, on_max_y_thresh_trackbar)
+
+
 while True:
 
     if frame is None:
         break
-    frame_HSV = cv.cvtColor(frame, cv.COLOR_BGR2HSV)
+
+    crop_frame = frame[min_y:max_y, min_x:max_x]
+
+    frame_HSV = cv.cvtColor(crop_frame, cv.COLOR_BGR2HSV)
     frame_threshold = cv.inRange(frame_HSV, (low_H, low_S, low_V), (high_H, high_S, high_V))
 
-    cv.imshow(window_capture_name, frame)
-    cv.imshow(window_detection_name, frame_threshold)
+    cv.imshow(window_capture_name, frame_threshold)
+    cv.imshow(window_detection_name, frame)
 
     key = cv.waitKey(30)
     if key == ord('q') or key == 27:
