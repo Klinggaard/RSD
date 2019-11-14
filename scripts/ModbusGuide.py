@@ -7,7 +7,7 @@ but add a function to make reading holding registers easier
 
 from scripts.modbus_client import Client
 
-c = Client(ip="raspberrypi.local", port=5020)  # The port will stay 5020
+c = Client(ip="192.168.0.20", port=5020)  # The port will stay 5020
 
 #while not c.connect():  # connects the client to the server
 print(c.connect())

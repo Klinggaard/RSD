@@ -1,13 +1,6 @@
 import rtde_control
 import rtde_receive
 import time
-rtde_c = rtde_control.RTDEControlInterface("192.168.0.99")
-#rtde_r = rtde_receive.RTDEReceiveInterface("192.168.0.99")
-
-
-# while True:
-#     print(rtde_r.getActualQ())
-
 
 #over camera/pregrasp: [-1.8969367186175745, -2.0070206127562464, -2.13478946685791, 4.114851637477539, -1.5151179472552698, -1.5469110647784632]
 #Large brick grasp: [-1.8101142088519495, -2.1542002163329066, -1.856816291809082, 4.01967112600293, -1.4238227049456995, -1.5479300657855433]
@@ -15,13 +8,22 @@ rtde_c = rtde_control.RTDEControlInterface("192.168.0.99")
 #small brick grasp: [-2.0131247679339808, -2.18654265026235, -1.794539451599121, 3.989055796260498, -1.6267221609698694, -1.5463479200946253]
 #over box grasp: [-1.6843403021441858, -1.7713800869383753, -2.538630485534668, 4.318931265468262, -1.2982853094684046, -1.547690216694967]
 
-velocity = 1
-acceleration = 1.2
-pose1 = [-1.6843403021441858, -1.7713800869383753, -2.538630485534668, 4.318931265468262, -1.2982853094684046, -1.547690216694967]
-pose2 = [-1.8969367186175745, -2.0070206127562464, -2.13478946685791, 4.114851637477539, -1.5151179472552698, -1.5469110647784632]
-pose3 = [-1.8101142088519495, -2.1542002163329066, -1.856816291809082, 4.01967112600293, -1.4238227049456995, -1.5479300657855433]
+class RobotControl:
+    def __init__(self):
+        self.rtde_c = rtde_control.RTDEControlInterface("192.168.0.99")
+        self.rtde_r = rtde_receive.RTDEReceiveInterface("192.168.0.99")
+        self.velocity = 0.5
+        self.acceleration = 1.2
 
-rtde_c.moveJ(pose1, velocity, acceleration)
-rtde_c.moveJ(pose2, velocity, acceleration)
-time.sleep(2)
-rtde_c.moveJ(pose3, velocity, acceleration)
+    def moveRobot(self, pose, vel, acc):
+        self.velocity = vel
+        self.acceleration = acc
+        self.rtde_c.moveJ(pose, self.velocity, self.acceleration)
+
+    def moveRobot(self, pose):
+        self.rtde_c.moveJ(pose, self.velocity, self.acceleration)
+
+    def getQ(self):
+        return self.rtde_r.getActualQ()
+
+

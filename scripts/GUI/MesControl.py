@@ -11,7 +11,8 @@ from kivy.uix.button import Button
 from kivy.uix.image import Image
 from kivy.uix.screenmanager import Screen
 from scripts.finite_state_machine import FiniteStateMachine as FSM
-
+from scripts.robotControl import RobotControl
+import json
 
 def callback(instance):
     print('The button <%s> is being pressed' % instance.text)
@@ -155,6 +156,14 @@ class MesControl(Screen):
         threading.Thread(target=self.main_thread_loop).start()
 
     def main_thread_loop(self):
+        self.Robot = RobotControl
+        self.Robot.__init__(self.Robot)
+        datastore = ""
+        with open("../scripts/PPP/grasp_config.json", 'r') as f:
+            datastore = json.load(f)
+
+        print(datastore["OverBoxConfig"]["q"])
+
         while True:
             print('[State] {}'.format(self.state_machine.state))
             execute_state = self.state_machine.state
@@ -162,6 +171,9 @@ class MesControl(Screen):
                 self.state_machine.change_state('SC', 'Starting', 'Execute')
             elif (execute_state == 'Execute'):
                 # Execute the main process here
+                self.Robot.moveRobot(self.Robot, datastore["OverCameraPose"]["q"])
+                self.Robot.moveRobot(self.Robot, datastore["MediumBrickGrasp"]["q"])
+                self.Robot.moveRobot(self.Robot, datastore["OverBoxConfig"]["q"])
                 # and change the state to either: holding, suspending or completing
                 self.state_machine.change_state('SC', 'Execute', 'Completing')
             elif (execute_state == 'Completing'):
