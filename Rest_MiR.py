@@ -52,4 +52,3 @@ class Rest_MiR():
         if response.status_code != 200:
             print(response.status_code)
         return 0
-    # return register_value
