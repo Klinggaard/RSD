@@ -156,13 +156,7 @@ class MesControl(Screen):
         threading.Thread(target=self.main_thread_loop).start()
 
     def main_thread_loop(self):
-        self.Robot = RobotControl
-        self.Robot.__init__(self.Robot)
-        datastore = ""
-        with open("../scripts/PPP/grasp_config.json", 'r') as f:
-            datastore = json.load(f)
-
-        print(datastore["OverBoxConfig"]["q"])
+        self.Robot = RobotControl()
 
         while True:
             print('[State] {}'.format(self.state_machine.state))
@@ -171,9 +165,9 @@ class MesControl(Screen):
                 self.state_machine.change_state('SC', 'Starting', 'Execute')
             elif (execute_state == 'Execute'):
                 # Execute the main process here
-                self.Robot.moveRobot(self.Robot, datastore["OverCameraPose"]["q"])
-                self.Robot.moveRobot(self.Robot, datastore["MediumBrickGrasp"]["q"])
-                self.Robot.moveRobot(self.Robot, datastore["OverBoxConfig"]["q"])
+                self.Robot.moveRobot("OverCameraPose")
+                self.Robot.moveRobot("MediumBrickGrasp")
+                self.Robot.moveRobot("OverBoxConfig")
                 # and change the state to either: holding, suspending or completing
                 self.state_machine.change_state('SC', 'Execute', 'Completing')
             elif (execute_state == 'Completing'):

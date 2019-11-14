@@ -26,9 +26,13 @@ class RobotControl:
     def moveRobot(self, graspConfigString):
         datastore = ""
         with open("../scripts/PPP/grasp_config.json", 'r') as f:
-            datastore = json.load(f)
+            try:
+                datastore = json.load(f)
+            except ValueError as e:
+                print("Cannot retrieve json, got the following error: " + e)
 
-        self.moveRobot(datastore[graspConfigString]["q"])
+        pose = datastore[[str(graspConfigString)]["q"]]
+        self.rtde_c.moveJ(pose, self.velocity, self.acceleration)
 
     def getQ(self):
         return self.rtde_r.getActualQ()
