@@ -7,7 +7,7 @@ from picamera.array import PiRGBArray
 from picamera import PiCamera
 import time
 
-BLUE, RED, YELLOW, WOOD, ERROR = (i for i in range(5))
+BLUE, RED, YELLOW, ERROR = (i for i in range(4))
 _colour_thresh = 0.5
 
 
