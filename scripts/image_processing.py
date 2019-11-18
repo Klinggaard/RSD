@@ -10,20 +10,20 @@ import time
 camera = PiCamera()
 
 BLUE, RED, YELLOW, ERROR = (i for i in range(4))
-_colour_thresh = 0.8 * 255
+_colour_thresh = 0.8 * 256
 
 
 # Colour ranges in HSV
 # TODO: Find correct colour ranges
 _colour_ranges = {
-    "BLUE": ((101, 93, 0), (180, 198, 52)),
-    "RED": ((130, 0, 0), (180, 255, 255)),
-    "YELLOW": ((15, 0, 18), (29, 255, 124))  # possible remove
+    "BLUE": ((72, 45, 0), (116, 255, 255)),
+    "RED": ((70, 47, 0), (180, 255, 255)),
+    "YELLOW": ((3, 53, 60), (20, 255, 166))  # possible remove
 }
 
 # TODO: Set coordinate ranges for different bricks
 _brick_coords = {
-    "B22": ((1512, 2096), (1192, 1554))
+    "B22": ((1172, 1792), (1202, 1607))
 }
 
 
