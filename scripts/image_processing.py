@@ -66,7 +66,7 @@ def _check_brick(frame, brick):
             ret_list.append(count)
         count += 1
 
-    if len(ret_list) > 1:
+    if len(ret_list) > 1 or len(ret_list) == 0:
         return ERROR
     return ret_list[0]
 
