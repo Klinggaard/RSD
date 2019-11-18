@@ -4,7 +4,7 @@ import json
 
 class MesOrder():
     def __init__(self):
-        self.url = 'http://127.0.0.1:5000/orders'
+        self.url = 'http://10.10.19.20/orders'  #Server ip for
         self.counter = 0  # counter of processed orders
 
     def get_put_order(self):
