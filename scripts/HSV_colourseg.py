@@ -108,8 +108,8 @@ def on_max_y_thresh_trackbar(val):
     cv.setTrackbarPos("max y", window_detection_name, max_y)
 
 
-cv.namedWindow(window_capture_name)
-cv.namedWindow(window_detection_name)
+cv.namedWindow(window_capture_name, cv.WINDOW_AUTOSIZE)
+cv.namedWindow(window_detection_name, cv.WINDOW_AUTOSIZE)
 
 
 cv.createTrackbar(low_H_name, window_detection_name, low_H, max_value_H, on_low_H_thresh_trackbar)
