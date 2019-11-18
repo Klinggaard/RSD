@@ -17,7 +17,7 @@ _colour_thresh = 0.8 * 256
 # TODO: Find correct colour ranges
 _colour_ranges = {
     "BLUE": ((72, 45, 0), (116, 255, 255)),
-    "RED": ((70, 47, 0), (180, 255, 255)),
+    "RED": ((170, 47, 0), (180, 255, 255)),
     "YELLOW": ((3, 53, 60), (20, 255, 166))  # possible remove
 }
 
@@ -65,7 +65,7 @@ def _check_brick(frame, brick):
             print(average)
             ret_list.append(count)
         count += 1
-
+    print(ret_list)
     if len(ret_list) > 1 or len(ret_list) == 0:
         return ERROR
     return ret_list[0]
