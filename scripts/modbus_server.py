@@ -99,11 +99,11 @@ def updating_writer(a):
     register = 3
     slave_id = 0x00
     address  = 0x10
-    print(get_coils(context[slave_id], 0, 1), "\n", get_holdings(context[slave_id], 0, 3))
+    #print(get_coils(context[slave_id], 0, 1), "\n", get_holdings(context[slave_id], 0, 3))
     if get_coils(context[slave_id], 0, 1)[0]:  # System asked for brick info
         colours = check_bricks()
         set_holdings(context[slave_id], 0, colours)
-        set_coils(context[slave_id], 0, False)
+        set_coils(context[slave_id], 0, [False])
 
 #---------------------------------------------------------------------------#
 # initialize your data store

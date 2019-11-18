@@ -1,10 +1,10 @@
 
 import getpass as gp
-#assert gp.getuser() == "pi", "Can't run on other equipment pi"
+assert gp.getuser() == "pi", "Can't run on other equipment pi"
 
 import cv2 as cv
-#from picamera.array import PiRGBArray
-#from picamera import PiCamera
+from picamera.array import PiRGBArray
+from picamera import PiCamera
 import time
 
 BLUE, RED, YELLOW, ERROR = (i for i in range(4))
@@ -47,8 +47,8 @@ def _capture_image():
 
     # cv.imshow("img", rawCapture.array)
     # cv.waitKey(0)
-
-    return rawCapture.array
+    rawCapture = cv.resize(rawCapture.array, (3280,2464))
+    return rawCapture
 
 
 def _check_brick(frame, brick):
