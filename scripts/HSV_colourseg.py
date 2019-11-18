@@ -70,8 +70,11 @@ def on_high_V_thresh_trackbar(val):
 
 
 
-img_path = "/home/pi/cam.jpg"
+img_path = "images/allcolours.png"
 frame = cv.imread(img_path)
+cv.imshow("win", frame)
+cv.waitKey(0)
+
 
 max_val = frame.shape[1]
 max_x = frame.shape[0]
