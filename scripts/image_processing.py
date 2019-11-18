@@ -17,7 +17,7 @@ _colour_ranges = {
     "BLUE": ((240, 100, 80), (240, 100, 80)),
     "RED": ((0, 100, 80), (0, 100, 80)),
     "YELLOW": ((60, 100, 80), (60, 100, 80)),
-    "WOOD": ((0, 0, 0), (0, 0, 0))
+    "WOOD": ((0, 0, 0), (0, 0, 0))  # possible remove
 }
 
 # TODO: Set coordinate ranges for different bricks
