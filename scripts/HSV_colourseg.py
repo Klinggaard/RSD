@@ -2,7 +2,10 @@
 import getpass as gp
 import cv2 as cv
 import numpy as np
-
+from picamera.array import PiRGBArray
+from picamera import PiCamera
+import time
+camera = PiCamera()
 
 max_value = 255
 max_value_H = 360 // 2
@@ -66,15 +69,15 @@ def on_high_V_thresh_trackbar(val):
     high_V = max(high_V, low_V + 1)
     cv.setTrackbarPos(high_V_name, window_detection_name, high_V)
 
+frame = PiRGBArray(camera)
+# allow the camera to warmup
+time.sleep(0.1)
+# grab an image from the camera
+camera.capture(frame, format="bgr")
 
-
-
-
-img_path = "images/allcolours.png"
-frame = cv.imread(img_path)
-cv.imshow("win", frame)
-cv.waitKey(0)
-
+# cv.imshow("img", rawCapture.array)
+# cv.waitKey(0)
+frame = cv.resize(frame.array, (3280,2464))
 
 max_val = frame.shape[1]
 max_x = frame.shape[0]

@@ -65,7 +65,7 @@ def _check_brick(frame, brick):
             print(average)
             ret_list.append(count)
         count += 1
-
+    print(ret_list)
     if len(ret_list) > 1 or len(ret_list) == 0:
         return ERROR
     return ret_list[0]
