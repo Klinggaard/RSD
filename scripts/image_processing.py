@@ -36,6 +36,7 @@ def _colour_segmentation(frame, colour_range):
 def _capture_image():
     # initialize the camera and grab a reference to the raw camera capture
 
+    # return cv.imread("images/cam.jpg")
 
     camera = PiCamera()
     rawCapture = PiRGBArray(camera)
@@ -54,8 +55,6 @@ def _check_brick(frame, brick):
     crop_frame = frame[brick[1][0]:brick[1][1], brick[0][0]:brick[0][1]]
     ret_list = []
     count = 0
-    cv.imshow("cropped", crop_frame)
-    cv.waitKey(0)
 
     for c in _colour_ranges:
         binary_image = _colour_segmentation(crop_frame, _colour_ranges[c])
@@ -80,5 +79,4 @@ def check_bricks():
     return ret_list  # Code for the colour of the bricks in the feeder
 
 
-
-print(check_bricks())
+# print(check_bricks())

@@ -25,4 +25,4 @@ class Client(ModbusClient):
         while self.read_coils(0, 1):  # RPi working - coil will be set to False when RPi is done
             time.sleep(2)
 
-        return self.read_registers(address=3, amount=3)
+        return self.read_registers(address=3, amount=1)
