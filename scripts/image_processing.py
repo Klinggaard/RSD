@@ -7,6 +7,8 @@ from picamera.array import PiRGBArray
 from picamera import PiCamera
 import time
 
+camera = PiCamera()
+
 BLUE, RED, YELLOW, ERROR = (i for i in range(4))
 _colour_thresh = 0.8 * 255
 
@@ -38,7 +40,6 @@ def _capture_image():
 
     # return cv.imread("images/cam.jpg")
 
-    camera = PiCamera()
     rawCapture = PiRGBArray(camera)
     # allow the camera to warmup
     time.sleep(0.1)
