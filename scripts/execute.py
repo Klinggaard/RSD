@@ -4,7 +4,7 @@ from Rest_MiR import Rest_MiR
 from scripts.clienttest import MesOrder
 
 
-modbus_client = Client(ip="raspberrypi.local", port=5020)  # The port will stay 5020
+modbus_client = Client(ip="192.168.0.20", port=5020)  # The port will stay 5020
 robot = RobotControl()
 mir = Rest_MiR()
 db_orders = MesOrder()
@@ -16,15 +16,13 @@ for order_counter in range(4):
     blues = do_order["blue"]
     yellows = do_order["yellow"]
     while yellows > 0:
-        robot.moveRobot("LargeBrickGrasp")
-        # add grasping
-        robot.moveRobot("OverCameraPose")
-        verify = modbus_client.get_brick_colours()
+        robot.graspYellow()
+        verify = modbus_client.get_brick_colours()[0]
         if verify == 3:
             print("Error, Modbus client / camera problem")
             # add tossing out or going into hold state
         if verify == 2:
-            robot.moveRobot("OverBoxConfig")
+            robot.putInBox()
             # add letting go of a block
             # add different positions for different boxes
             yellows -= 1
@@ -32,11 +30,9 @@ for order_counter in range(4):
             print("Block has different color than expected - toss it out")
             # add tossing out
     while reds > 0:
-        robot.moveRobot("MediumBrickGrasp")
-        # add grasping
-        robot.moveRobot("OverCameraPose")
+        robot.graspRed()
         modbus_client.connect()
-        verify = modbus_client.get_brick_colours()
+        verify = modbus_client.get_brick_colours()[0]
         if verify == 3:
             print("Error, Modbus client / camera problem")
             # add tossing out or going into hold state
@@ -48,11 +44,9 @@ for order_counter in range(4):
             print("Block has different color than expected - toss it out")
             # add tossing out
     while blues > 0:
-        robot.moveRobot("MediumBrickGrasp")
-        # add grasping
-        robot.moveRobot("OverCameraPose")
+        robot.graspBlue()
         modbus_client.connect()
-        verify = modbus_client.get_brick_colours()
+        verify = modbus_client.get_brick_colours()[0]
         if verify == 3:
             print("Error, Modbus client / camera problem")
             # add tossing out or going into hold state

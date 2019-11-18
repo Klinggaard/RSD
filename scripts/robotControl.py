@@ -1,5 +1,6 @@
 import rtde_control
 import rtde_receive
+import rtde_io
 import time, json
 
 #over camera/pregrasp: [-1.8969367186175745, -2.0070206127562464, -2.13478946685791, 4.114851637477539, -1.5151179472552698, -1.5469110647784632]
@@ -12,8 +13,12 @@ class RobotControl:
     def __init__(self):
         self.rtde_c = rtde_control.RTDEControlInterface("192.168.0.99")
         self.rtde_r = rtde_receive.RTDEReceiveInterface("192.168.0.99")
+        self.rtde_i = rtde_io.RTDEIOInterface("192.168.0.99")
         self.velocity = 0.5
         self.acceleration = 1.2
+        self.datastore = ""
+        with open("../scripts/PPP/grasp_config.json", 'r') as f:
+            self.datastore = json.load(f)
 
     def moveRobot(self, pose, vel, acc):
         self.velocity = vel
@@ -24,15 +29,42 @@ class RobotControl:
         self.rtde_c.moveJ(pose, self.velocity, self.acceleration)
 
     def moveRobot(self, graspConfigString):
-        datastore = ""
-        with open("../scripts/PPP/grasp_config.json", 'r') as f:
-            try:
-                datastore = json.load(f)
-            except ValueError as e:
-                print("Cannot retrieve json, got the following error: " + e)
-
-        pose = datastore[[str(graspConfigString)]["q"]]
+        pose = self.datastore[str(graspConfigString)]["q"]
         self.rtde_c.moveJ(pose, self.velocity, self.acceleration)
+
+    def graspYellow(self):
+        self.openGripper()
+        self.moveRobot("YellowPreGrasp")
+        self.moveRobot("YellowGrasp")
+        self.closeGripper()
+        self.moveRobot("YellowPreGrasp")
+        self.moveRobot("OverCameraPose")
+
+    def graspRed(self):
+        self.openGripper()
+        self.moveRobot("RedPreGrasp")
+        self.moveRobot("RedGrasp")
+        self.closeGripper()
+        self.moveRobot("RedPreGrasp")
+        self.moveRobot("OverCameraPose")
+
+    def graspBlue(self):
+        self.openGripper()
+        self.moveRobot("BluePreGrasp")
+        self.moveRobot("BlueGrasp")
+        self.closeGripper()
+        self.moveRobot("BluePreGrasp")
+        self.moveRobot("OverCameraPose")
+
+    def putInBox(self):
+        self.moveRobot("OverBoxPose")
+        self.openGripper()
+
+    def closeGripper(self):
+        self.rtde_i.setStandardDigitalOut(0, False)
+
+    def openGripper(self):
+        self.rtde_i.setStandardDigitalOut(0, True)
 
     def getQ(self):
         return self.rtde_r.getActualQ()
