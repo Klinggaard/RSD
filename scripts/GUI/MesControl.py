@@ -11,7 +11,7 @@ from kivy.uix.button import Button
 from kivy.uix.image import Image
 from kivy.uix.screenmanager import Screen
 from scripts.finite_state_machine import FiniteStateMachine as FSM
-from scripts.robotControl import RobotControl
+from scripts.RobotControl import RobotControl
 import json
 
 def callback(instance):
@@ -156,8 +156,6 @@ class MesControl(Screen):
         threading.Thread(target=self.main_thread_loop).start()
 
     def main_thread_loop(self):
-        self.Robot = RobotControl()
-
         while True:
             print('[State] {}'.format(self.state_machine.state))
             execute_state = self.state_machine.state
@@ -165,9 +163,6 @@ class MesControl(Screen):
                 self.state_machine.change_state('SC', 'Starting', 'Execute')
             elif (execute_state == 'Execute'):
                 # Execute the main process here
-                self.Robot.moveRobot("OverCameraPose")
-                self.Robot.moveRobot("MediumBrickGrasp")
-                self.Robot.moveRobot("OverBoxConfig")
                 # and change the state to either: holding, suspending or completing
                 self.state_machine.change_state('SC', 'Execute', 'Completing')
             elif (execute_state == 'Completing'):

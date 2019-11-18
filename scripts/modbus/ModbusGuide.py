@@ -5,7 +5,7 @@ The Client class inherent all functionality from ModbusTcpClient
 but add a function to make reading holding registers easier
 """
 
-from scripts.modbus_client import Client
+from scripts.modbus.modbus_client import Client
 
 c = Client(ip="raspberrypi.local", port=5020)  # The port will stay 5020
 

@@ -1,12 +1,11 @@
-import rtde_io
+import rtde_io as io
 import time
 import random
-import finite_state_machine.py
+from scripts.finite_state_machine import FiniteStateMachine
 
-import rtde_io
+rtde_io = io.RTDEIOInterface("192.168.0.99")
 
 def lights_on_of():
-    rtde_io = rtde_io.RTDEIOInterface("192.168.0.99")
 
     print("TURNING ON THE LIGHTS")
     #Light IO
@@ -40,21 +39,21 @@ def light_tower(state):
             rtde_io.setStandardDigitalOut(3,True)
             rtde_io.setStandardDigitalOut(2,False)
             rtde_io.setStandardDigitalOut(1,False)
-            sleep(1)
+            time.sleep(1)
             rtde_io.setStandardDigitalOut(3,False)
             rtde_io.setStandardDigitalOut(2,False)
             rtde_io.setStandardDigitalOut(1,False)
-            sleep(1)
+            time.sleep(1)
     elif  state=='Resetting':
          while True:
             rtde_io.setStandardDigitalOut(3,False)
             rtde_io.setStandardDigitalOut(2,True)
             rtde_io.setStandardDigitalOut(1,False)
-            sleep(1)
+            time.sleep(1)
             rtde_io.setStandardDigitalOut(3,False)
             rtde_io.setStandardDigitalOut(2,False)
             rtde_io.setStandardDigitalOut(1,False)
-            sleep(1)
+            time.sleep(1)
     elif state=='Suspending' or state=='Suspended':
         rtde_io.setStandardDigitalOut(2,True)
         rtde_io.setStandardDigitalOut(3,False)
@@ -64,11 +63,11 @@ def light_tower(state):
             rtde_io.setStandardDigitalOut(3,False)
             rtde_io.setStandardDigitalOut(2,False)
             rtde_io.setStandardDigitalOut(1,True)
-            sleep(1)
+            time.sleep(1)
             rtde_io.setStandardDigitalOut(3,False)
             rtde_io.setStandardDigitalOut(2,False)
             rtde_io.setStandardDigitalOut(1,False)
-            sleep(1)
+            time.sleep(1)
     elif state=='Starting' or state=='Executing' or state=='Unholding' or state=='Unsuspending':
         rtde_io.setStandardDigitalOut(1,True)
         rtde_io.setStandardDigitalOut(3,False)
@@ -78,11 +77,11 @@ def light_tower(state):
             rtde_io.setStandardDigitalOut(3,False)
             rtde_io.setStandardDigitalOut(2,True)
             rtde_io.setStandardDigitalOut(1,True)
-            sleep(1)
+            time.sleep(1)
             rtde_io.setStandardDigitalOut(3,False)
             rtde_io.setStandardDigitalOut(2,False)
             rtde_io.setStandardDigitalOut(1,False)
-            sleep(1)
+            time.sleep(1)
 
 while (True):
     State=FiniteStateMachine.state

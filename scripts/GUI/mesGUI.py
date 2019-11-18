@@ -7,7 +7,7 @@ from kivy.lang import Builder
 from kivy.properties import ObjectProperty
 from kivy.uix.boxlayout import BoxLayout
 from scripts.GUI.MesControl import MesControl
-from scripts.GUI.MesOrders import MesOrders
+from scripts.GUI.MesOrderScreen import MesOrderScreen
 from kivy.config import Config
 from kivy.uix.screenmanager import ScreenManager, Screen
 

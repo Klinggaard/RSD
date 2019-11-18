@@ -7,6 +7,11 @@ class MesOrder():
         self.url = 'http://10.10.19.20/orders'  #Server ip for
         self.counter = 0  # counter of processed orders
 
+    def get_order(self):
+        # GET all orders
+        response = requests.get(self.url)
+        return response.content
+
     def get_put_order(self):
         # GET all orders
         response = requests.get(self.url)

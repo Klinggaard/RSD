@@ -1,12 +1,11 @@
-from scripts.modbus_client import Client
-from scripts.robotControl import RobotControl
-from Rest_MiR import Rest_MiR
-from scripts.clienttest import MesOrder
-import json
+from scripts.modbus.modbus_client import Client
+from scripts.RobotControl import RobotControl
+from scripts.Rest_MiR import RestMiR
+from scripts.MesOrder import MesOrder
 
 modbus_client = Client(ip="192.168.0.20", port=5020)  # The port will stay 5020
 robot = RobotControl()
-mir = Rest_MiR()
+mir = RestMiR()
 db_orders = MesOrder()
 modbus_client.connect()
 

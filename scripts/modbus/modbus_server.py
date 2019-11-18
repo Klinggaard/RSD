@@ -30,7 +30,7 @@ from twisted.internet.task import LoopingCall
 # import image related libraries
 #---------------------------------------------------------------------------#
 import cv2 as cv
-from image_processing import check_bricks
+from scripts.imageprocessing.image_processing import check_bricks
 
 #---------------------------------------------------------------------------#
 # configure the service logging

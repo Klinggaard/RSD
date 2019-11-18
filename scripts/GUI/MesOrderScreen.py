@@ -63,10 +63,10 @@ class RV(RecycleView):
         # self.data = [{'label2': {'text': i1}, 'label3': {'text': i2}} for i1, i2 in zip(items_1, items_2)]
 
 
-class MesOrders(Screen):
+class MesOrderScreen(Screen):
     def __init__(self, **kwargs):
         # make sure we aren't overriding any important functionality
-        super(MesOrders, self).__init__(**kwargs)
+        super(MesOrderScreen, self).__init__(**kwargs)
         self.recycle_view = RV()
         self.add_widget(self.recycle_view)
 

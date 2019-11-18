@@ -1,13 +1,9 @@
-from scripts.robotControl import RobotControl
-import time
+from scripts.MesOrder import MesOrder
+import requests
+import json
 
-from scripts.modbus_client import Client
-from scripts.robotControl import RobotControl
-from Rest_MiR import Rest_MiR
-from scripts.clienttest import MesOrder
-
-mes = MesOrder()
-mes.get_put_order()
+#mes = MesOrder()
+#mes.get_put_order()
 
 
 #robot = RobotControl()
