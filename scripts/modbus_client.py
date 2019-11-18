@@ -22,7 +22,7 @@ class Client(ModbusClient):
         :return: A list of colour codes
         """
         self.write_coil(0, True)  # Setting coil 0 to True will tell the RPi to take and process and image
-        while self.read_coils(0, 1):  # RPi working - coil will be set to False when RPi is done
-            time.sleep(2)
+        while self.read_coils(0, 1).bits[0]:  # RPi working - coil will be set to False when RPi is done
+            time.sleep(0.2)
 
-        return self.read_registers(address=3, amount=1)
+        return self.read_registers(address=0, amount=1)

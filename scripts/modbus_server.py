@@ -129,7 +129,7 @@ identity.MajorMinorRevision = '1.0'
 #---------------------------------------------------------------------------#
 # run the server you want
 #---------------------------------------------------------------------------#
-time = 5 # 5 seconds delay
+time = 0.1 # 5 seconds delay
 loop = LoopingCall(f=updating_writer, a=(context,))
 loop.start(time, now=False) # initially delay by time
 StartTcpServer(context, identity=identity, address=("192.168.0.20", 5020))
