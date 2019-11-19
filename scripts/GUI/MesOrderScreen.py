@@ -81,6 +81,7 @@ class MesOrderScreen(Screen):
 
     def _keyboard_closed(self):
         pass
+
     def get_orders(self):
         # Get from database, needs MainDB to be running or on the backbone network
         # TODO Change to MesOrder when connected to backbone
@@ -95,7 +96,7 @@ class MesOrderScreen(Screen):
     def refresh_callback(self,instance):
         print('The button <%s> is being pressed' % instance.text)
         #This wipes the table for data
-        for i in range(0,len(self.my_table.grid.cells[0])):
+        for i in range(0,len(self.my_table.grid.cells)):
             self.my_table.del_row(0)
 
         #add the updated table
@@ -107,11 +108,6 @@ class MesOrderScreen(Screen):
                 [TextInput, {'text': str(x["blue"]), 'color_click': [0.5, 0.5, 0.5, 1]}],
                 [TextInput, {'text': str(x["yellow"]), 'color_click': [0.5, 0.5, 0.5, 1]}],
                 [TextInput, {'text': str(x["status"]), 'color_click': [0.5, 0.5, 0.5, 1]}])
-
-
-
-
-
 
     def _on_keyboard_down(self, keyboard, keycode, text, modifiers):
         """ Method of pressing keyboard  """
@@ -127,8 +123,6 @@ class MesOrderScreen(Screen):
         if keycode[0] == 279:  # End
             print(keycode)
             self.my_table.scroll_view.end()
-
-
 
     def _update_rect(self, instance, value):
         self.rect.pos = instance.pos
