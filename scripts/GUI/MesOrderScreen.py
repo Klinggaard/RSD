@@ -15,6 +15,7 @@ from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.button import Button
 from kivy.uix.textinput import TextInput
 from scripts.GUI.table import Table
+import logging
 
 import requests
 import json
@@ -61,12 +62,10 @@ class MesOrderScreen(Screen):
         self.my_table.number_panel.visible = True
         self.my_table.scroll_view.bar_width = 10
         self.my_table.scroll_view.scroll_type = ['bars']
-        print("ROW COUNT:", self.my_table.row_count)
 
         #Refresh button setup#
-        btn_refresh = Button(text='REFRESH', background_color=[0, 0.8, 0, 0.8], background_normal=' ', font_size=8, on_press=self.refresh_callback)
+        btn_refresh = Button(text='REFRESH', background_color=[0, 0.8, 0, 1], background_normal=' ', font_size=8, on_press=self.refresh_callback)
         refresh_buttons = BoxLayout(orientation='horizontal', size_hint=(0.02, 0.055), pos_hint={'left': 1, 'top': 1})
-
         refresh_buttons.add_widget(btn_refresh)
 
         #Add the widgets
@@ -88,13 +87,13 @@ class MesOrderScreen(Screen):
         try:
             response = requests.get('http://127.0.0.1:5000/orders')
         except requests.exceptions.ConnectionError:
-            print("Connection error")
+            logging.error("[MesOrderScreen]Connection error")
 
         decoded = json.loads(response.content)  # convert from JSON to dictionary
         return decoded
 
     def refresh_callback(self,instance):
-        print('The button <%s> is being pressed' % instance.text)
+        logging.info("[MesOrderScreen]" + 'The button <%s> is being pressed' % instance.text)
         #This wipes the table for data
         for i in range(0,len(self.my_table.grid.cells)):
             self.my_table.del_row(0)
@@ -112,16 +111,16 @@ class MesOrderScreen(Screen):
     def _on_keyboard_down(self, keyboard, keycode, text, modifiers):
         """ Method of pressing keyboard  """
         if keycode[0] == 273:  # UP
-            print(keycode)
+            logging.info("[MesOrderScreen] Key pressed " + str(keycode))
             self.my_table.scroll_view.up()
         if keycode[0] == 274:  # DOWN
-            print(keycode)
+            logging.info("[MesOrderScreen] Key pressed " + str(keycode))
             self.my_table.scroll_view.down()
         if keycode[0] == 278:  # Home
-            print(keycode)
+            logging.info("[MesOrderScreen] Key pressed " + str(keycode))
             self.my_table.scroll_view.home()
         if keycode[0] == 279:  # End
-            print(keycode)
+            logging.info("[MesOrderScreen] Key pressed " +str(keycode))
             self.my_table.scroll_view.end()
 
     def _update_rect(self, instance, value):

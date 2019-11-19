@@ -7,6 +7,7 @@ from kivy.lang import Builder
 from kivy.properties import ObjectProperty
 from kivy.uix.boxlayout import BoxLayout
 from scripts.GUI.MesControl import MesControl
+from scripts.GUI.OEEScreen import OEEScreen
 from scripts.GUI.MesOrderScreen import MesOrderScreen
 from kivy.config import Config
 from kivy.uix.screenmanager import ScreenManager, Screen
@@ -24,25 +25,9 @@ class Menu(BoxLayout):
     manager = ObjectProperty(None)
 
 
-class Help(Screen):
-    def __init__(self, **kwargs):
-        # make sure we aren't overriding any important functionality
-        super(Help, self).__init__(**kwargs)
-
-        ##Bind canvas to widget and set screen color
-        self.bind(size=self._update_rect, pos=self._update_rect)
-        with self.canvas.before:
-            Color(1, 1, 1, 1)  # colors range from 0-1 not 0-255
-            self.rect = Rectangle(size=self.size, pos=self.pos)
-
-    def _update_rect(self, instance, value):
-        self.rect.pos = instance.pos
-        self.rect.size = instance.size
-
-
 class Manager(ScreenManager):
     controlScreen = ObjectProperty(None)
-    helpScreen = ObjectProperty(None)
+    OEEScreen = ObjectProperty(None)
     orderScreen = ObjectProperty(None)
 
 

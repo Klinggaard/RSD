@@ -12,10 +12,11 @@ from kivy.uix.image import Image
 from kivy.uix.screenmanager import Screen
 from scripts.finite_state_machine import FiniteStateMachine as FSM
 from scripts.RobotControl import RobotControl
+import logging
 import json
 
 def callback(instance):
-    print('The button <%s> is being pressed' % instance.text)
+    logging.info('[MesControl] The button <%s> is being pressed' % instance.text)
 
 
 class MesControl(Screen):
@@ -157,7 +158,7 @@ class MesControl(Screen):
 
     def main_thread_loop(self):
         while True:
-            print('[State] {}'.format(self.state_machine.state))
+            logging.info(str('[State] {}').format(self.state_machine.state))
             execute_state = self.state_machine.state
             if (execute_state == 'Starting'):
                 self.state_machine.change_state('SC', 'Starting', 'Execute')

@@ -1,6 +1,6 @@
 from scripts.modbus.modbus_client import Client
 from scripts.RobotControl import RobotControl
-from scripts.Rest_MiR import RestMiR
+from scripts.RestMiR import RestMiR
 from scripts.MesOrder import MesOrder
 
 modbus_client = Client(ip="192.168.0.20", port=5020)  # The port will stay 5020

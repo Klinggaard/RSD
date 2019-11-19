@@ -19,32 +19,31 @@
                     root.manager.transition.direction = 'up'
 
             ActionButton:
-                text:"Help"
+                text:"OEE"
                 on_release:
-                    root.manager.current = "help"
+                    root.manager.current = "OEE"
                     root.manager.transition.direction = 'up'
     Manager:
         id: screen_manager
 
 <MesControl>:
 
-
-<Help>:
-
 <MesOrderScreen>:
+
+<OEEScreen>:
 
 <Manager>:
     controlScreen: controlScreen
-    helpScreen: helpScreen
+    oeeScreen: oeeScreen
     orderScreen: orderScreen
 
     MesControl:
         id: controlScreen
         name: 'control'
 
-    Help:
-        id: helpScreen
-        name: 'help'
+    OEEScreen:
+        id: oeeScreen
+        name: 'OEE'
 
     MesOrderScreen:
         id: orderScreen
