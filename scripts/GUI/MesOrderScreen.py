@@ -39,15 +39,7 @@ class MesOrderScreen(Screen):
         self.my_table = Table()
         self.my_table.cols = 5
 
-        #Get from database, needs MainDB to be running or on the backbone network TODO Change to MesOrder when connected to backbone
-        try:
-            response = requests.get('http://127.0.0.1:5000/orders')
-        except requests.exceptions.ConnectionError:
-            print("Connection error")
-
-        decoded = json.loads(response.content)  # convert from JSON to dictionary
-        print(decoded)
-
+        decoded = self.get_orders()
         # look for an order with smallest ID which is not taken, so we can process it
         for x in decoded['orders']:
             self.my_table.add_row(
@@ -89,10 +81,35 @@ class MesOrderScreen(Screen):
 
     def _keyboard_closed(self):
         pass
+    def get_orders(self):
+        # Get from database, needs MainDB to be running or on the backbone network
+        # TODO Change to MesOrder when connected to backbone
+        try:
+            response = requests.get('http://127.0.0.1:5000/orders')
+        except requests.exceptions.ConnectionError:
+            print("Connection error")
+
+        decoded = json.loads(response.content)  # convert from JSON to dictionary
+        return decoded
 
     def refresh_callback(self,instance):
         print('The button <%s> is being pressed' % instance.text)
-        print("Cell 0,0: ", self.my_table.grid.cells[0][0].text)
+        #This wipes the table for data
+        for i in range(0,len(self.my_table.grid.cells[0])):
+            self.my_table.del_row(0)
+
+        #add the updated table
+        decoded = self.get_orders()
+        for x in decoded['orders']:
+            self.my_table.add_row(
+                [TextInput, {'text': str(x["id"]), 'color_click': [0.5, 0.5, 0.5, 1]}],
+                [TextInput, {'text': str(x["red"]), 'color_click': [0.5, 0.5, 0.5, 1]}],
+                [TextInput, {'text': str(x["blue"]), 'color_click': [0.5, 0.5, 0.5, 1]}],
+                [TextInput, {'text': str(x["yellow"]), 'color_click': [0.5, 0.5, 0.5, 1]}],
+                [TextInput, {'text': str(x["status"]), 'color_click': [0.5, 0.5, 0.5, 1]}])
+
+
+
 
 
 
