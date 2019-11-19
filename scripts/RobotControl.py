@@ -60,6 +60,14 @@ class RobotControl:
         self.moveRobot("OverBoxPose")
         self.openGripper()
 
+    def unloadMIR(self):
+        #TODO Add a sequence of actions to unload empty boxes from the mir onto the table
+        pass
+
+    def loadMIR(self):
+        #TODO Add a sequence of actions to load boxes onto the mir
+        pass
+
     def closeGripper(self):
         self.rtde_i.setStandardDigitalOut(0, False)
 
