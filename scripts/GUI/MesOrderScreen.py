@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 from kivy.graphics.context_instructions import Color
 from kivy.graphics.vertex_instructions import Rectangle
+from kivy.lang import Builder
 from kivy.properties import BooleanProperty
 from kivy.uix.behaviors import FocusBehavior
 from kivy.uix.gridlayout import GridLayout
@@ -9,66 +10,81 @@ from kivy.uix.recycleview import RecycleView
 from kivy.uix.recycleview.layout import LayoutSelectionBehavior
 from kivy.uix.recycleview.views import RecycleDataViewBehavior
 from kivy.uix.screenmanager import Screen
+from kivy.core.window import Window
+from kivy.uix.boxlayout import BoxLayout
+from kivy.uix.button import Button
+from kivy.uix.textinput import TextInput
+from scripts.GUI.table import Table
 
-items_1 = {'apple', 'banana', 'pear', 'pineapple'}
-items_2 = {'dog', 'cat', 'rat', 'bat'}
+items_1 = {'apple', 'banana', 'pear', 'pineapple', 'grape', 'orange', 'dragonfruit'}
+items_2 = {'dog', 'cat', 'rat', 'bat', 'hamster', 'pug', 'monkey'}
 
-
-class SelectableRecycleBoxLayout(FocusBehavior, LayoutSelectionBehavior,
-                                 RecycleBoxLayout):
-    ''' Adds selection and focus behaviour to the view. '''
-
-
-class SelectableLabel(RecycleDataViewBehavior, GridLayout):
-    ''' Add selection support to the Label '''
-    index = None
-    selected = BooleanProperty(False)
-    selectable = BooleanProperty(True)
-    cols = 3
-
-    def refresh_view_attrs(self, rv, index, data):
-        ''' Catch and handle the view changes '''
-        self.index = index
-        self.label1_text = str(index)
-        self.label2_text = data['label2']['text']
-        self.ids['id_label3'].text = data['label3']['text']  # As an alternate method of assignment
-        return super(SelectableLabel, self).refresh_view_attrs(
-            rv, index, data)
-
-    def on_touch_down(self, touch):
-        ''' Add selection on touch down '''
-        if super(SelectableLabel, self).on_touch_down(touch):
-            return True
-        if self.collide_point(*touch.pos) and self.selectable:
-            return self.parent.select_with_touch(self.index, touch)
-
-    def apply_selection(self, rv, index, is_selected):
-        ''' Respond to the selection of items in the view. '''
-        self.selected = is_selected
-        if is_selected:
-            print("selection changed to {0}".format(rv.data[index]))
-        else:
-            print("selection removed for {0}".format(rv.data[index]))
+items_real = {'3', '2019-10-07 13:48:39', '2', '1', '2', '2', 'EB3F84'}
 
 
-class RV(RecycleView):
-    def __init__(self, **kwargs):
-        super(RV, self).__init__(**kwargs)
-        paired_iter = zip(items_1, items_2)
-        self.data = []
-        for i1, i2 in paired_iter:
-            d = {'label2': {'text': i1}, 'label3': {'text': i2}}
-            self.data.append(d)
-        # can also be performed in a complicated one liner for those who like it tricky
-        # self.data = [{'label2': {'text': i1}, 'label3': {'text': i2}} for i1, i2 in zip(items_1, items_2)]
+def refresh_callback(instance):
+    print('The button <%s> is being pressed' % instance.text)
 
 
 class MesOrderScreen(Screen):
     def __init__(self, **kwargs):
         # make sure we aren't overriding any important functionality
         super(MesOrderScreen, self).__init__(**kwargs)
-        self.recycle_view = RV()
-        self.add_widget(self.recycle_view)
+
+
+        #Table setup#
+        self._keyboard = Window.request_keyboard(self._keyboard_closed, self)
+        self._keyboard.bind(on_key_down=self._on_keyboard_down)
+        self.my_table = Table()
+        self.my_table.cols = 7
+        for i in range(30):
+            self.my_table.add_row([TextInput, {'text': 'button%s' % i, 'color_click': [0.5, 0.5, 0.5, 1]}],
+                                  [TextInput, {'text': 'button%s' % i, 'color_click': [0.5, 0.5, 0.5, 1]}],
+                                  [TextInput, {'text': 'button%s' % i, 'color_click': [0.5, 0.5, 0.5, 1]}],
+                                  [TextInput, {'text': 'button%s' % i, 'color_click': [0.5, 0.5, 0.5, 1]}],
+                                  [TextInput, {'text': 'button%s' % i, 'color_click': [0.5, 0.5, 0.5, 1]}],
+                                  [TextInput, {'text': 'button%s' % i, 'color_click': [0.5, 0.5, 0.5, 1]}],
+                                  [TextInput, {'text': 'textinput%s' % i, 'color_click': [0.5, 0.5, 0.5, 1]}])
+        self.my_table.label_panel.visible = True
+        self.my_table.label_panel.labels[1].text = 'ID'
+        self.my_table.label_panel.labels[2].text = 'Time'
+        self.my_table.label_panel.labels[3].text = 'Red'
+        self.my_table.label_panel.labels[4].text = 'Blue'
+        self.my_table.label_panel.labels[5].text = 'Yellow'
+        self.my_table.label_panel.labels[6].text = 'Status'
+        self.my_table.label_panel.labels[7].text = 'Ticket'
+        self.my_table.label_panel.height_widget = 50
+        self.my_table.number_panel.auto_width = True
+        self.my_table.number_panel.visible = True
+        self.my_table.scroll_view.bar_width = 10
+        self.my_table.scroll_view.scroll_type = ['bars']
+        print("ROW COUNT:", self.my_table.row_count)
+
+        #Refresh button setup#
+        btn_refresh = Button(text='REFRESH', background_color=[0, 0.8, 0, 0.8], background_normal=' ', font_size=8, on_press=refresh_callback)
+        refresh_buttons = BoxLayout(orientation='horizontal', size_hint=(0.02, 0.055), pos_hint={'left': 1, 'top': 1})
+
+        refresh_buttons.add_widget(btn_refresh)
+        self.add_widget(self.my_table)
+        self.add_widget(refresh_buttons)
+
+    def _keyboard_closed(self):
+        pass
+
+    def _on_keyboard_down(self, keyboard, keycode, text, modifiers):
+        """ Method of pressing keyboard  """
+        if keycode[0] == 273:  # UP
+            print(keycode)
+            self.my_table.scroll_view.up()
+        if keycode[0] == 274:  # DOWN
+            print(keycode)
+            self.my_table.scroll_view.down()
+        if keycode[0] == 278:  # Home
+            print(keycode)
+            self.my_table.scroll_view.home()
+        if keycode[0] == 279:  # End
+            print(keycode)
+            self.my_table.scroll_view.end()
 
         ##Bind canvas to widget and set screen color
         self.bind(size=self._update_rect, pos=self._update_rect)
