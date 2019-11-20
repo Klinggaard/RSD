@@ -16,6 +16,7 @@ from kivy.uix.button import Button
 from kivy.uix.textinput import TextInput
 from scripts.GUI.table import Table
 import logging
+from scripts.MesOrder import MesOrder
 
 import requests
 import json
@@ -33,6 +34,7 @@ class MesOrderScreen(Screen):
         # make sure we aren't overriding any important functionality
         super(MesOrderScreen, self).__init__(**kwargs)
 
+        self.mesOrder = MesOrder()
 
         #Table setup#
         self._keyboard = Window.request_keyboard(self._keyboard_closed, self)
@@ -44,11 +46,11 @@ class MesOrderScreen(Screen):
         # look for an order with smallest ID which is not taken, so we can process it
         for x in decoded['orders']:
             self.my_table.add_row(
-                [TextInput, {'text': str(x["id"]), 'color_click': [0.5, 0.5, 0.5, 1]}],
-                [TextInput, {'text': str(x["red"]), 'color_click': [0.5, 0.5, 0.5, 1]}],
-                [TextInput, {'text': str(x["blue"]), 'color_click': [0.5, 0.5, 0.5, 1]}],
-                [TextInput, {'text': str(x["yellow"]), 'color_click': [0.5, 0.5, 0.5, 1]}],
-                [TextInput, {'text': str(x["status"]), 'color_click': [0.5, 0.5, 0.5, 1]}])
+                [TextInput, {'text': str(x["id"]), 'color_click': [1, 1, 1, 1], 'font_size': 18, 'halign':'center', 'disabled': True, 'background_disabled': ''}],
+                [TextInput, {'text': str(x["red"]), 'color_click': [1, 1, 1, 1], 'font_size': 18, 'halign':'center', 'disabled': True, 'background_disabled': ''}],
+                [TextInput, {'text': str(x["blue"]), 'color_click': [1, 1, 1, 1], 'font_size': 18, 'halign':'center', 'disabled': True, 'background_disabled': ''}],
+                [TextInput, {'text': str(x["yellow"]), 'color_click': [1, 1, 1, 1], 'font_size': 18, 'halign':'center', 'disabled': True, 'background_disabled': ''}],
+                [TextInput, {'text': str(x["status"]), 'color_click': [1, 1, 1, 1], 'font_size': 18, 'halign':'center', 'disabled': True, 'background_disabled': ''}])
 
 
         self.my_table.label_panel.visible = True
@@ -62,6 +64,7 @@ class MesOrderScreen(Screen):
         self.my_table.number_panel.visible = True
         self.my_table.scroll_view.bar_width = 10
         self.my_table.scroll_view.scroll_type = ['bars']
+        self.my_table.scroll_view
 
         #Refresh button setup#
         btn_refresh = Button(text='REFRESH', background_color=[0, 0.8, 0, 1], background_normal=' ', font_size=8, on_press=self.refresh_callback)
@@ -84,13 +87,16 @@ class MesOrderScreen(Screen):
     def get_orders(self):
         # Get from database, needs MainDB to be running or on the backbone network
         # TODO Change to MesOrder when connected to backbone ONLY USE THIS FOR TESTING ON TEST DB
-        try:
-            response = requests.get('http://127.0.0.1:5000/orders')
-            decoded = json.loads(response.content)  # convert from JSON to dictionary
-        except requests.exceptions.ConnectionError:
-            logging.error("[MesOrderScreen]Connection error")
+        # try:
+        #     response = requests.get('http://127.0.0.1:5000/orders')
+        #     decoded = json.loads(response.content)  # convert from JSON to dictionary
+        # except requests.exceptions.ConnectionError:
+        #     logging.error("[MesOrderScreen]Connection error")
+        #
+        # return decoded
+        return self.mesOrder.get_order()
 
-        return decoded
+
 
     def refresh_callback(self,instance):
         logging.info("[MesOrderScreen]" + 'The button <%s> is being pressed' % instance.text)
@@ -102,26 +108,22 @@ class MesOrderScreen(Screen):
         decoded = self.get_orders()
         for x in decoded['orders']:
             self.my_table.add_row(
-                [TextInput, {'text': str(x["id"]), 'color_click': [0.5, 0.5, 0.5, 1]}],
-                [TextInput, {'text': str(x["red"]), 'color_click': [0.5, 0.5, 0.5, 1]}],
-                [TextInput, {'text': str(x["blue"]), 'color_click': [0.5, 0.5, 0.5, 1]}],
-                [TextInput, {'text': str(x["yellow"]), 'color_click': [0.5, 0.5, 0.5, 1]}],
-                [TextInput, {'text': str(x["status"]), 'color_click': [0.5, 0.5, 0.5, 1]}])
+                [TextInput, {'text': str(x["id"]), 'color_click': [1, 1, 1, 1], 'font_size': 18, 'halign':'center', 'disabled': True, 'background_disabled': ''}],
+                [TextInput, {'text': str(x["red"]), 'color_click': [1, 1, 1, 1], 'font_size': 18, 'halign':'center', 'disabled': True, 'background_disabled': ''}],
+                [TextInput, {'text': str(x["blue"]), 'color_click': [1, 1, 1, 1], 'font_size': 18, 'halign':'center', 'disabled': True, 'background_disabled': ''}],
+                [TextInput, {'text': str(x["yellow"]), 'color_click': [1, 1, 1, 1], 'font_size': 18, 'halign':'center', 'disabled': True, 'background_disabled': ''}],
+                [TextInput, {'text': str(x["status"]), 'color_click': [1, 1, 1, 1], 'font_size': 18, 'halign':'center', 'disabled': True, 'background_disabled': ''}])
 
     def _on_keyboard_down(self, keyboard, keycode, text, modifiers):
         """ Method of pressing keyboard  """
         if keycode[0] == 273:  # UP
             logging.info("[MesOrderScreen] Key pressed " + str(keycode))
-            self.my_table.scroll_view.up()
         if keycode[0] == 274:  # DOWN
             logging.info("[MesOrderScreen] Key pressed " + str(keycode))
-            self.my_table.scroll_view.down()
         if keycode[0] == 278:  # Home
             logging.info("[MesOrderScreen] Key pressed " + str(keycode))
-            self.my_table.scroll_view.home()
         if keycode[0] == 279:  # End
             logging.info("[MesOrderScreen] Key pressed " +str(keycode))
-            self.my_table.scroll_view.end()
 
     def _update_rect(self, instance, value):
         self.rect.pos = instance.pos

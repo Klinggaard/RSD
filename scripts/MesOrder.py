@@ -1,6 +1,8 @@
 import requests
 import json
 
+import logging
+
 
 class MesOrder():
     def __init__(self):
@@ -9,8 +11,14 @@ class MesOrder():
 
     def get_order(self):
         # GET all orders
-        response = requests.get(self.url)
-        return response.content
+        try:
+            response = requests.get(self.url)
+            decoded = json.loads(response.content)  # convert from JSON to dictionary
+            return decoded
+        except requests.exceptions.ConnectionError:
+            logging.error("[MesOrder] Connection error")
+        return
+
 
     def get_put_order(self):
         # GET all orders

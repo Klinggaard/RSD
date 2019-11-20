@@ -2,20 +2,21 @@ from scripts.modbus.modbus_client import Client
 from scripts.RobotControl import RobotControl
 from scripts.RestMiR import RestMiR
 from scripts.MesOrder import MesOrder
+import json
 
 modbus_client = Client(ip="192.168.0.20", port=5020)  # The port will stay 5020
 robot = RobotControl()
-mir = RestMiR()
+#mir = RestMiR()
 db_orders = MesOrder()
 modbus_client.connect()
 
 for order_counter in range(4):
-    do_order = db_orders.get_put_order()
+    #do_order = db_orders.get_put_order()
 
     #Dummy order
-    #with open("../scripts/PPP/grasp_config.json", 'r') as f:
-    #    datastore = json.load(f)
-    #do_order = datastore["DummyOrder"]
+    with open("../scripts/PPP/grasp_config.json", 'r') as f:
+        datastore = json.load(f)
+    do_order = datastore["DummyOrder"]
 
     reds = do_order["red"]
     blues = do_order["blue"]
@@ -66,6 +67,8 @@ for order_counter in range(4):
     if blues == 0 and yellows == 0 and reds == 0:
         print("Sub-order completed")
         db_orders.delete_order(do_order)
+
+
 #    if order_counter == 2:
 #       mir_mission = mir.get_mission("GoTo6")
 #       mir.add_mission_to_queue(mir_mission)

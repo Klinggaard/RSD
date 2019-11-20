@@ -54,15 +54,15 @@ class RestMiR():
             print(response.status_code)
         return 0
 
-
-mir = RestMiR()
-guid = mir.get_mission("GoTo6")
-mir.add_mission_to_queue(guid)
-while mir.read_register(6) != 1: # wait for MIR to arrive
-    mir.read_register(1)
-# add function to put boxes on MIR & flag to make sure we are done with packing
-print("mir arrived")
-time.sleep(2)
-mir.write_register(6, 0)  # MIR can go
-print("bye MIR")
+#
+# mir = RestMiR()
+# guid = mir.get_mission("GoTo6")
+# mir.add_mission_to_queue(guid)
+# while mir.read_register(6) != 1: # wait for MIR to arrive
+#     mir.read_register(1)
+# # add function to put boxes on MIR & flag to make sure we are done with packing
+# print("mir arrived")
+# time.sleep(2)
+# mir.write_register(6, 0)  # MIR can go
+# print("bye MIR")
 # change state to completing
