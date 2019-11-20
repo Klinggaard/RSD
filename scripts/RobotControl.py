@@ -3,6 +3,7 @@ import rtde_receive
 import rtde_io
 import time, json
 import logging
+import rootpath
 #over camera/pregrasp: [-1.8969367186175745, -2.0070206127562464, -2.13478946685791, 4.114851637477539, -1.5151179472552698, -1.5469110647784632]
 #Large brick grasp: [-1.8101142088519495, -2.1542002163329066, -1.856816291809082, 4.01967112600293, -1.4238227049456995, -1.5479300657855433]
 #Medium brick grasp: [-1.9142192045794886, -2.168049474755758, -1.8302984237670898, 4.0065552431293945, -1.527867619191305, -1.547138516102926]
@@ -17,7 +18,8 @@ class RobotControl:
         self.velocity = 0.5
         self.acceleration = 1.2
         self.datastore = ""
-        with open("../scripts/PPP/grasp_config.json", 'r') as f:
+        projectPath = rootpath.detect()
+        with open(projectPath + "/scripts/PPP/grasp_config.json", 'r') as f:
             self.datastore = json.load(f)
 
     def moveRobot(self, pose, vel, acc):

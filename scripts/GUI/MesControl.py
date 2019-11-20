@@ -14,6 +14,7 @@ from scripts.finite_state_machine import FiniteStateMachine as FSM
 from scripts.RobotControl import RobotControl
 import logging
 import json
+import scripts.execute
 
 def callback(instance):
     logging.info('[MesControl] The button <%s> is being pressed' % instance.text)
@@ -164,6 +165,7 @@ class MesControl(Screen):
                 self.state_machine.change_state('SC', 'Starting', 'Execute')
             elif (execute_state == 'Execute'):
                 # Execute the main process here
+                scripts.execute.packOrders()
                 # and change the state to either: holding, suspending or completing
                 self.state_machine.change_state('SC', 'Execute', 'Completing')
             elif (execute_state == 'Completing'):

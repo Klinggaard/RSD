@@ -1,18 +1,19 @@
 from scripts.modbus.modbus_client import Client
-from scripts.imageprocessing.image_processing import BLUE, YELLOW, RED, ERROR
 from scripts.RobotControl import RobotControl
 from scripts.RestMiR import RestMiR
 from scripts.MesOrder import MesOrder
 import logging
 import json
 
-modbus_client = Client(ip="192.168.0.20", port=5020)  # The port will stay 5020
-robot = RobotControl()
-#mir = RestMiR()
-db_orders = MesOrder()
-modbus_client.connect()
-
+#The same as in image processing TODO: Make a global define file
+BLUE, RED, YELLOW, ERROR = (i for i in range(4))
 def packOrders():
+    modbus_client = Client(ip="192.168.0.20", port=5020)  # The port will stay 5020
+    robot = RobotControl()
+    db_orders = MesOrder()
+    modbus_client.connect()
+    #mir = RestMiR() TODO IMPLEMENT THIS
+
     for order_counter in range(4):
         do_order = db_orders.get_put_order()
 
@@ -87,8 +88,5 @@ mir.write_register(1, 0)  # MIR can go
 mir.write_register(2, 1)  # MIR go to base
 # change state to completing
 '''
-
-
-
 
 
