@@ -2,7 +2,7 @@ import rtde_control
 import rtde_receive
 import rtde_io
 import time, json
-
+import logging
 #over camera/pregrasp: [-1.8969367186175745, -2.0070206127562464, -2.13478946685791, 4.114851637477539, -1.5151179472552698, -1.5469110647784632]
 #Large brick grasp: [-1.8101142088519495, -2.1542002163329066, -1.856816291809082, 4.01967112600293, -1.4238227049456995, -1.5479300657855433]
 #Medium brick grasp: [-1.9142192045794886, -2.168049474755758, -1.8302984237670898, 4.0065552431293945, -1.527867619191305, -1.547138516102926]
@@ -56,9 +56,27 @@ class RobotControl:
         self.moveRobot("BluePreGrasp")
         self.moveRobot("OverCameraPose")
 
-    def putInBox(self):
-        self.moveRobot("OverBoxPose")
+    def takeBoxesFromFeeder(self):
+        self.moveRobot("BoxPreGrasp")
         self.openGripper()
+        self.moveRobot("BoxGrasp")
+        self.closeGripper()
+        self.moveRobot("BoxPreGrasp")
+
+    def putBoxesInFeeder(self):
+        self.moveRobot("PreFeeder")
+        self.moveRobot("Feeder")
+        self.openGripper()
+        self.moveRobot("PostFeeder")
+
+    def putInBox(self, boxNumber):
+        if(boxNumber == 0 or boxNumber == 1 or boxNumber == 2 or boxNumber == 3):
+            self.moveRobot("OverBox"+str(boxNumber))
+            self.openGripper()
+        else:
+            logging.error("[RobotControl] Invalid box number")
+
+
 
     def unloadMIR(self):
         #TODO Add a sequence of actions to unload empty boxes from the mir onto the table

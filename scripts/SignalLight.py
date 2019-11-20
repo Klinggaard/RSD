@@ -29,6 +29,14 @@ def lights_on_of():
         rtde_io.setStandardDigitalOut(3, True)
         rtde_io.setStandardDigitalOut(0,True)
 
+#TODO IMPLEMENT THIS FOR MINIMAL CODE DUPLICATION
+def lights(l1=False, l2=False, l3=False):
+    rtde_io.setStandardDigitalOut(1, l1)
+    rtde_io.setStandardDigitalOut(2, l2)
+    rtde_io.setStandardDigitalOut(3, l3)
+
+
+
 def light_tower(state):
     if state=='Stopping' or state=='Stopped':
         rtde_io.setStandardDigitalOut(3,True)
