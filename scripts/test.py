@@ -9,6 +9,10 @@ from scripts.finite_state_machine import FiniteStateMachine as FSM
 
 #
 robot = RobotControl()
+
+while True:
+    print(robot.readInputBits())
+    time.sleep(0.5)
 # #robot.putInBox(0)
 # robot.velocity = 0.8
 # robot.takeBoxesFromFeeder()
@@ -23,9 +27,6 @@ robot = RobotControl()
 
 #robot.moveRobot("OverCameraPose")
 
-while True:
-    print(robot.getQ())
-    time.sleep(0.5)
 
 #TEST OF STATEMACHING USING SINGLETON
 # stateMachine = FSM(FSM.states_packml, FSM.transition)
