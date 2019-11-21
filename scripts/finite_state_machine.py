@@ -2,6 +2,7 @@ import numpy as np
 
 
 class FiniteStateMachine:
+    __instance = None   #INITIAL INSTANCE OF CLASS
 
     transition = np.array([['Start', 'Idle', 'Starting'],
                        ['SC', 'Starting', 'Execute'],
@@ -45,10 +46,23 @@ class FiniteStateMachine:
     initial_state = 'Idle'
     state = ''
 
+    @staticmethod
+    def getInstance():
+        """ Static access method. """
+        if FiniteStateMachine.__instance == None:
+            FiniteStateMachine()
+        return FiniteStateMachine.__instance
+
     def __init__(self, list_states, list_transitions):
         self.transition = list_transitions
         self.states = list_states
         self.state = 'Idle'
+
+        """ Virtually private constructor. """
+        if FiniteStateMachine.__instance != None:
+            raise Exception("This class is a singleton!")
+        else:
+            FiniteStateMachine.__instance = self
 
     def change_state(self, trigger, from_state, to_state):
         arr = np.array([trigger, from_state, to_state])

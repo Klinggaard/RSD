@@ -3,22 +3,39 @@ import requests
 import json
 import time
 from scripts.RobotControl import RobotControl
+from scripts.finite_state_machine import FiniteStateMachine as FSM
 #mes = MesOrder()
 #mes.get_put_order()
 
+#
+# robot = RobotControl()
+# #robot.putInBox(0)
+# robot.velocity = 0.8
+# robot.takeBoxesFromFeeder()
+# robot.moveRobot("TEST")
+# robot.putBoxesInFeeder()
+#
+# while True:
+#     robot.takeBoxesFromFeeder()
+#     robot.moveRobot("TEST")
+#     robot.putBoxesInFeeder()
+#     time.sleep(0.5)
 
-robot = RobotControl()
-#robot.putInBox(0)
-robot.velocity = 0.8
-robot.takeBoxesFromFeeder()
-robot.moveRobot("TEST")
-robot.putBoxesInFeeder()
+#TEST OF STATEMACHING USING SINGLETON
+stateMachine = FSM(FSM.states_packml, FSM.transition)
+print("SM1: " , stateMachine.state)
+stateMachine.change_state('Start', 'Idle', 'Starting')
 
-while True:
-    robot.takeBoxesFromFeeder()
-    robot.moveRobot("TEST")
-    robot.putBoxesInFeeder()
-    time.sleep(0.5)
+stateMachine2 = FSM.getInstance()
+
+print("SM1: " , stateMachine.state)
+print("SM2: " , stateMachine2.state)
+stateMachine2.change_state('SC', 'Starting', 'Execute')
+
+print("SM1: " , stateMachine.state)
+print("SM2: " , stateMachine2.state)
+
+
 
 
 #Yellow pregrasp: [-1.803497616444723, -2.109267850915426, -1.9879026412963867, 4.164214773769043, -1.4250472227679651, -1.5656560103045862]

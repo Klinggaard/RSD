@@ -1,8 +1,12 @@
+import threading
+import time
+
 from scripts.modbus.modbus_client import Client
 from scripts.RobotControl import RobotControl
 from scripts.RestMiR import RestMiR
 from scripts.MesOrder import MesOrder
 import logging
+from scripts.finite_state_machine import FiniteStateMachine as FSM
 import json
 
 #The same as in image processing TODO: Make a global define file
@@ -73,6 +77,35 @@ def packOrders():
         db_orders.delete_order(do_order)
 
 
+def main_thread_loop():
+    stateMachine = FSM.getInstance()
+    while True:
+        logging.info(str('[State] {}').format(stateMachine.state))
+        execute_state = stateMachine.state
+        if (execute_state == 'Starting'):
+            stateMachine.change_state('SC', 'Starting', 'Execute')
+        elif (execute_state == 'Execute'):
+            # Execute the main process here
+            packOrders()
+            # and change the state to either: holding, suspending or completing
+            stateMachine.change_state('SC', 'Execute', 'Completing')
+        elif (execute_state == 'Completing'):
+            stateMachine.change_state('SC', 'Completing', 'Complete')
+        elif (execute_state == 'Resetting'):
+            # Do some resetting procedure here
+            stateMachine.change_state('SC', 'Resetting', 'Idle')
+        elif (execute_state == 'Aborting'):
+            # Do some aborting stuff, like stopping the robot and change to aborted
+            stateMachine.change_state('SC', 'Aborting', 'Aborted')
+        elif (execute_state == 'Clearing'):
+            # Stop MES and do some clearing after an abort
+            stateMachine.change_state('SC', 'Clearing', 'Stopped')
+        elif (execute_state == 'Stopping'):
+            # Stop MES
+            stateMachine.change_state('SC', 'Stopping', 'Stopped')
+
+        # TODO: REMOVE THIS SLEEP WHEN NOT TESTING ANYMORE
+        time.sleep(1)
 
 #    if order_counter == 2:
 #        order_counter = 0

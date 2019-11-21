@@ -2,6 +2,7 @@
 import threading
 import time
 
+import rootpath
 from kivy.clock import Clock
 from kivy.graphics import Line
 from kivy.graphics.context_instructions import Color
@@ -21,7 +22,6 @@ def callback(instance):
 
 
 class MesControl(Screen):
-    state_machine = FSM(FSM.states_packml, FSM.transition)
 
     def change_state_idle_from_stopped(self, instance):
         self.state_machine.change_state('Reset', self.state_machine.state, 'Resetting')
@@ -94,6 +94,8 @@ class MesControl(Screen):
         # make sure we aren't overriding any important functionality
         super(MesControl, self).__init__(**kwargs)
 
+        self.state_machine = FSM.getInstance() #INIT STATEMACHINE
+
         ##Setup buttons
         # ON/OFF Bars
         btn_on = Button(text='ON', background_color=[0, 1, 0, 0.8], background_normal=' ')
@@ -133,7 +135,8 @@ class MesControl(Screen):
         self.add_widget(leftButtons)
 
         # Add packml state image
-        img = Image(source='images/packml.png', size_hint=(1, 1), pos_hint={'right': 1.1, 'center_y': 0.5}, opacity=0.8)
+        projectPath = rootpath.detect()
+        img = Image(source=projectPath +'/scripts/GUI/images/packml.png', size_hint=(1, 1), pos_hint={'right': 1.1, 'center_y': 0.5}, opacity=0.8)
         self.add_widget(img)
 
         # Bind canvas to widget and set screen color
@@ -151,40 +154,8 @@ class MesControl(Screen):
         Clock.schedule_interval(self.on_timeout, 0.1)
 
         # Start the main thread
-        self.start_main_thread("mainThread")
+        #self.start_main_thread("mainThread")
 
-    def start_main_thread(self, l_text):
-        # initialize thread
-        threading.Thread(target=self.main_thread_loop).start()
-
-    def main_thread_loop(self):
-        while True:
-            logging.info(str('[State] {}').format(self.state_machine.state))
-            execute_state = self.state_machine.state
-            if (execute_state == 'Starting'):
-                self.state_machine.change_state('SC', 'Starting', 'Execute')
-            elif (execute_state == 'Execute'):
-                # Execute the main process here
-                scripts.execute.packOrders()
-                # and change the state to either: holding, suspending or completing
-                self.state_machine.change_state('SC', 'Execute', 'Completing')
-            elif (execute_state == 'Completing'):
-                self.state_machine.change_state('SC', 'Completing', 'Complete')
-            elif (execute_state == 'Resetting'):
-                # Do some resetting procedure here
-                self.state_machine.change_state('SC', 'Resetting', 'Idle')
-            elif (execute_state == 'Aborting'):
-                # Do some aborting stuff, like stopping the robot and change to aborted
-                self.state_machine.change_state('SC', 'Aborting', 'Aborted')
-            elif (execute_state == 'Clearing'):
-                # Stop MES and do some clearing after an abort
-                self.state_machine.change_state('SC', 'Clearing', 'Stopped')
-            elif (execute_state == 'Stopping'):
-                # Stop MES
-                self.state_machine.change_state('SC', 'Stopping', 'Stopped')
-
-            # TODO: REMOVE THIS SLEEP WHEN NOT TESTING ANYMORE
-            time.sleep(1)
 
     def _update_rect(self, instance, value):
         self.rect.pos = instance.pos
