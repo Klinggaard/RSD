@@ -12,9 +12,9 @@ import rootpath
 
 class RobotControl:
     def __init__(self):
-        self.rtde_c = rtde_control.RTDEControlInterface("192.168.0.99")
-        self.rtde_r = rtde_receive.RTDEReceiveInterface("192.168.0.99")
-        self.rtde_i = rtde_io.RTDEIOInterface("192.168.0.99")
+        self.rtde_c = rtde_control.RTDEControlInterface("192.168.1.100")
+        self.rtde_r = rtde_receive.RTDEReceiveInterface("192.168.1.100")
+        self.rtde_i = rtde_io.RTDEIOInterface("192.168.1.100")
         self.velocity = 0.5
         self.acceleration = 1.2
         self.datastore = ""
@@ -26,6 +26,9 @@ class RobotControl:
         self.velocity = vel
         self.acceleration = acc
         self.rtde_c.moveJ(pose, self.velocity, self.acceleration)
+
+    def readInputBits(self):
+        return self.rtde_r.getActualDigitalInputBits()
 
     def moveRobot(self, pose):
         self.rtde_c.moveJ(pose, self.velocity, self.acceleration)
