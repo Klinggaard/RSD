@@ -98,6 +98,10 @@ __Dependencies:__
     pip3 install twisted
 ```
 
+## Making a bash script run when pi starts:
+
+https://www.instructables.com/id/Raspberry-Pi-Launch-Python-script-on-startup/
+
 __References:__
 https://pymodbus.readthedocs.io/en/latest/index.html
 https://twistedmatrix.com/trac/
