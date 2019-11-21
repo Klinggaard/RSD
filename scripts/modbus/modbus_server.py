@@ -30,6 +30,9 @@ from twisted.internet.task import LoopingCall
 # import image related libraries
 #---------------------------------------------------------------------------#
 import cv2 as cv
+
+import sys
+sys.path.insert(0, '/home/pi/RSD')
 from scripts.imageprocessing.image_processing import check_bricks
 
 #---------------------------------------------------------------------------#
