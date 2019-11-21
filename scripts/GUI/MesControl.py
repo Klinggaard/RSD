@@ -43,6 +43,53 @@ class MesControl(Screen):
     def change_state_abort(self, instance):
         self.state_machine.change_state('Abort', '*', 'Aborting')
 
+    def lights_color(self, R, G, B):
+        if R == False:
+            red = 0.25
+        else:
+            red = 1
+        if G == False:
+            green = 0.25
+        else:
+            green = 1
+        if B == False:
+            blue = 0.25
+        else:
+            blue = 1
+
+        self.btn_light1.background_color = [red, 0 , 0, 1]
+        self.btn_light2.background_color = [0, green , 0, 1]
+        self.btn_light3.background_color = [0, 0 , blue, 1]
+
+    def light_tower(self, instance):
+        state = self.state_machine.state
+        if state == 'Stopping' or state == 'Stopped':
+            self.lights_color(True, False, False)
+        elif state == 'Aborting' or state == 'Aborted' or state == 'Clearing':
+            if self.btn_light3.background_color == [0, 0, 1, 1]:
+                self.lights_color(False, False, True)
+            else:
+                self.lights_color(False, False, False)
+        elif state == 'Resetting':
+            if self.btn_light2.background_color == [0, 1, 0, 1]:
+                self.lights_color(False, True, False)
+            else:
+                self.lights_color(False, False, False)
+        elif state == 'Suspending' or state == 'Suspended':
+            self.lights_color(False, True, False)
+        elif state == 'Idle':
+            if self.btn_light1.background_color == [1, 0, 0, 1]:
+                self.lights_color(False, False, False)
+            else:
+                self.lights_color(True, False, False)
+        elif state == 'Starting' or state == 'Executing' or state == 'Unholding' or state == 'Unsuspending':
+            self.lights_color(True, False, False)
+        elif state == 'Holding' or state == 'Held':
+            if self.btn_light1.background_color == self.btn_light2.background_color == [1, 1, 0, 1]:
+                self.lights_color(True, True, False)
+            else:
+                self.lights_color(False, False, False)
+
     def on_timeout(self, instance):
         current_state = self.state_machine.state
         #Update box placement
@@ -151,6 +198,7 @@ class MesControl(Screen):
             self.line.width = 6
 
         Clock.schedule_interval(self.on_timeout, 0.1)
+        Clock.schedule_interval(self.light_tower, 0.5)
 
         # Start the main thread
         #self.start_main_thread("mainThread")

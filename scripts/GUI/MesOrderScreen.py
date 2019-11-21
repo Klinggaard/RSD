@@ -21,11 +21,6 @@ from scripts.MesOrder import MesOrder
 import requests
 import json
 
-items_1 = {'apple', 'banana', 'pear', 'pineapple', 'grape', 'orange', 'dragonfruit'}
-items_2 = {'dog', 'cat', 'rat', 'bat', 'hamster', 'pug', 'monkey'}
-
-items_real = {'3', '2019-10-07 13:48:39', '2', '1', '2', '2', 'EB3F84'}
-
 
 
 
@@ -44,6 +39,7 @@ class MesOrderScreen(Screen):
 
         decoded = self.get_orders()
         # look for an order with smallest ID which is not taken, so we can process it
+        #Comment this for loop out if not on the RSD backbone server(or connect another flash server)
         for x in decoded['orders']:
             self.my_table.add_row(
                 [TextInput, {'text': str(x["id"]), 'color_click': [1, 1, 1, 1], 'font_size': 18, 'halign':'center', 'disabled': True, 'background_disabled': ''}],
