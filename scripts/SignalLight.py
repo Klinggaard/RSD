@@ -39,14 +39,10 @@ def lights(l1=False, l2=False, l3=False):
 
 def light_tower(state):
     if state=='Stopping' or state=='Stopped':
-        rtde_io.setStandardDigitalOut(3,True)
-        rtde_io.setStandardDigitalOut(2,False)
-        rtde_io.setStandardDigitalOut(1,False)
+        lights(True,False,False)
     elif state=='Aborting' or state=='Aborted' or state=='Clearing':
         while (True):
-            rtde_io.setStandardDigitalOut(3,True)
-            rtde_io.setStandardDigitalOut(2,False)
-            rtde_io.setStandardDigitalOut(1,False)
+            lights(False,False,True)
             time.sleep(1)
             rtde_io.setStandardDigitalOut(3,False)
             rtde_io.setStandardDigitalOut(2,False)

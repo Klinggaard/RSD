@@ -15,7 +15,6 @@ from scripts.finite_state_machine import FiniteStateMachine as FSM
 from scripts.RobotControl import RobotControl
 import logging
 import json
-import scripts.execute
 
 def callback(instance):
     logging.info('[MesControl] The button <%s> is being pressed' % instance.text)
@@ -46,7 +45,7 @@ class MesControl(Screen):
 
     def on_timeout(self, instance):
         current_state = self.state_machine.state
-
+        #Update box placement
         square_base = [682, 80, 521, 80, 521, 164, 682, 164, 682, 80]
         addition = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
 
@@ -98,15 +97,15 @@ class MesControl(Screen):
 
         ##Setup buttons
         # ON/OFF Bars
-        btn_on = Button(text='ON', background_color=[0, 1, 0, 0.8], background_normal=' ')
-        btn_off = Button(text='OFF', background_color=[1, 0, 0, 0.8], background_normal=' ')
-        btn_on.bind(on_press=callback)
-        btn_off.bind(on_press=callback)
+        self.btn_light1 = Button(text='', background_color=[1, 0, 0, 0.8], background_normal=' ')
+        self.btn_light2 = Button(text='', background_color=[0, 1, 0, 0.8], background_normal=' ')
+        self.btn_light3 = Button(text='', background_color=[1, 1, 0, 0.8], background_normal=' ')
 
         on_off_buttons = BoxLayout(orientation='horizontal', size_hint=(0.2, 0.2), pos_hint={'left': 1, 'top': 1},
                                    padding=[30, 30, 0, 30], spacing=10)
-        on_off_buttons.add_widget(btn_on)
-        on_off_buttons.add_widget(btn_off)
+        on_off_buttons.add_widget(self.btn_light1)
+        on_off_buttons.add_widget(self.btn_light2)
+        on_off_buttons.add_widget(self.btn_light3)
 
         # Left collumn bars
         btn_start = Button(text='start')

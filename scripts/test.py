@@ -8,7 +8,7 @@ from scripts.finite_state_machine import FiniteStateMachine as FSM
 #mes.get_put_order()
 
 #
-# robot = RobotControl()
+robot = RobotControl()
 # #robot.putInBox(0)
 # robot.velocity = 0.8
 # robot.takeBoxesFromFeeder()
@@ -21,19 +21,25 @@ from scripts.finite_state_machine import FiniteStateMachine as FSM
 #     robot.putBoxesInFeeder()
 #     time.sleep(0.5)
 
+#robot.moveRobot("OverCameraPose")
+
+while True:
+    print(robot.getQ())
+    time.sleep(0.5)
+
 #TEST OF STATEMACHING USING SINGLETON
-stateMachine = FSM(FSM.states_packml, FSM.transition)
-print("SM1: " , stateMachine.state)
-stateMachine.change_state('Start', 'Idle', 'Starting')
-
-stateMachine2 = FSM.getInstance()
-
-print("SM1: " , stateMachine.state)
-print("SM2: " , stateMachine2.state)
-stateMachine2.change_state('SC', 'Starting', 'Execute')
-
-print("SM1: " , stateMachine.state)
-print("SM2: " , stateMachine2.state)
+# stateMachine = FSM(FSM.states_packml, FSM.transition)
+# print("SM1: " , stateMachine.state)
+# stateMachine.change_state('Start', 'Idle', 'Starting')
+#
+# stateMachine2 = FSM.getInstance()
+#
+# print("SM1: " , stateMachine.state)
+# print("SM2: " , stateMachine2.state)
+# stateMachine2.change_state('SC', 'Starting', 'Execute')
+#
+# print("SM1: " , stateMachine.state)
+# print("SM2: " , stateMachine2.state)
 
 
 

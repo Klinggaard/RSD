@@ -11,14 +11,19 @@ import json
 
 #The same as in image processing TODO: Make a global define file
 BLUE, RED, YELLOW, ERROR = (i for i in range(4))
+robot = RobotControl()
+
 def packOrders():
     modbus_client = Client(ip="192.168.0.20", port=5020)  # The port will stay 5020
-    robot = RobotControl()
     db_orders = MesOrder()
     modbus_client.connect()
     #mir = RestMiR() TODO IMPLEMENT THIS
+    stateMachine = FSM.getInstance()
 
     for order_counter in range(4):
+        if stateMachine.state != "Execute":
+            break
+
         do_order = db_orders.get_put_order()
 
         #Dummy order(FOR TESTING OUTSIDE 4.0)
@@ -31,46 +36,63 @@ def packOrders():
         yellows = do_order["yellow"]
         # TODO make into function
         while yellows > 0:
+            if stateMachine.state != "Execute":
+                break
             robot.graspYellow()
             verify = modbus_client.get_brick_colours()[0]
             print("VERIFY: ", verify)
             if verify == ERROR:
                 logging.error("Error, Modbus client / camera problem")
                 # add tossing out or going into hold state
+                robot.moveRobot("Dump")
+                robot.openGripper()
             if verify == YELLOW:
                 robot.putInBox(order_counter)
                 # add letting go of a block
                 # add different positions for different boxes
                 yellows -= 1
             else:
+                robot.moveRobot("Dump")
+                robot.openGripper()
                 logging.info("Block has different color than expected - toss it out")
                 # add tossing out
         while reds > 0:
+            if stateMachine.state != "Execute":
+                break
             robot.graspRed()
             modbus_client.connect()
             verify = modbus_client.get_brick_colours()[0]
             if verify == 3:
                 logging.error("Error, Modbus client / camera problem")
                 # add tossing out or going into hold state
+                robot.moveRobot("Dump")
+                robot.openGripper()
             if verify == 1:
                 robot.putInBox(order_counter)
                 # add different positions for different boxes
                 reds -= 1
             elif verify != 1:
+                robot.moveRobot("Dump")
+                robot.openGripper()
                 logging.info("Block has different color than expected - toss it out")
                 # add tossing out
         while blues > 0:
+            if stateMachine.state != "Execute":
+                break
             robot.graspBlue()
             modbus_client.connect()
             verify = modbus_client.get_brick_colours()[0]
             if verify == 3:
                 logging.error("Error, Modbus client / camera problem")
                 # add tossing out or going into hold state
+                robot.moveRobot("Dump")
+                robot.openGripper()
             if verify == 0:
                 robot.putInBox(order_counter)
-                # add different positions for different boxes
                 blues -= 1
             elif verify != 0:
+                robot.moveRobot("Dump")
+                robot.openGripper()
                 logging.info("Block has different color than expected - toss it out")
                 # add tossing out
         logging.info("Sub-order completed")
@@ -93,6 +115,7 @@ def main_thread_loop():
             stateMachine.change_state('SC', 'Completing', 'Complete')
         elif (execute_state == 'Resetting'):
             # Do some resetting procedure here
+            robot.moveRobot("Reset")
             stateMachine.change_state('SC', 'Resetting', 'Idle')
         elif (execute_state == 'Aborting'):
             # Do some aborting stuff, like stopping the robot and change to aborted
