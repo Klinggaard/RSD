@@ -14,6 +14,8 @@ BLUE, RED, YELLOW, ERROR = (i for i in range(4))
 def packOrders():
     robot = RobotControl.getInstance()
     modbus_client = Client(ip="192.168.0.20", port=5020)  # The port will stay 5020
+    if not modbus_client:
+        logging.ERROR("[PackOrders] Cannot connect to modbus")
     db_orders = MesOrder()
     modbus_client.connect()
     stateMachine = FSM.getInstance()
@@ -41,19 +43,13 @@ def packOrders():
             print("VERIFY: ", verify)
             if verify == ERROR:
                 logging.error("Error, Modbus client / camera problem")
-                # add tossing out or going into hold state
-                robot.moveRobot("Dump")
-                robot.openGripper()
+                robot.dumpBrick()
             if verify == YELLOW:
                 robot.putInBox(order_counter)
-                # add letting go of a block
-                # add different positions for different boxes
                 yellows -= 1
             else:
-                robot.moveRobot("Dump")
-                robot.openGripper()
+                robot.dumpBrick()
                 logging.info("Block has different color than expected - toss it out")
-                # add tossing out
         while reds > 0:
             if stateMachine.state != "Execute":
                 break
@@ -62,18 +58,13 @@ def packOrders():
             verify = modbus_client.get_brick_colours()[0]
             if verify == 3:
                 logging.error("Error, Modbus client / camera problem")
-                # add tossing out or going into hold state
-                robot.moveRobot("Dump")
-                robot.openGripper()
+                robot.dumpBrick()
             if verify == 1:
                 robot.putInBox(order_counter)
-                # add different positions for different boxes
                 reds -= 1
             elif verify != 1:
-                robot.moveRobot("Dump")
-                robot.openGripper()
+                robot.dumpBrick()
                 logging.info("Block has different color than expected - toss it out")
-                # add tossing out
         while blues > 0:
             if stateMachine.state != "Execute":
                 break
@@ -83,14 +74,12 @@ def packOrders():
             if verify == 3:
                 logging.error("Error, Modbus client / camera problem")
                 # add tossing out or going into hold state
-                robot.moveRobot("Dump")
-                robot.openGripper()
+                robot.dumpBrick()
             if verify == 0:
                 robot.putInBox(order_counter)
                 blues -= 1
             elif verify != 0:
-                robot.moveRobot("Dump")
-                robot.openGripper()
+                robot.dumpBrick()
                 logging.info("Block has different color than expected - toss it out")
                 # add tossing out
         logging.info("Sub-order completed")
@@ -109,7 +98,7 @@ def packOrders():
         #     mir.write_register(2, 1)  # MIR go to base
         #     # change state to completing by returning
         #     return
-
+    modbus_client.close()
 
 def main_thread_loop():
     stateMachine = FSM.getInstance()
@@ -129,6 +118,7 @@ def main_thread_loop():
         elif (execute_state == 'Resetting'):
             # Do some resetting procedure here
             robot.moveRobot("Reset")
+            robot.openGripper()
             stateMachine.change_state('SC', 'Resetting', 'Idle')
         elif (execute_state == 'Aborting'):
             # Do some aborting stuff, like stopping the robot and change to aborted

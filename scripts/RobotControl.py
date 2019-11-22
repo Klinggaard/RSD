@@ -116,6 +116,10 @@ class RobotControl:
         #TODO Add a sequence of actions to load boxes onto the mir
         pass
 
+    def dumpBrick(self):
+        self.moveRobot("Dump")
+        self.openGripper()
+
     def closeGripper(self):
         self.rtde_i.setStandardDigitalOut(0, False)
 
