@@ -9,7 +9,6 @@ import logging
 from scripts.finite_state_machine import FiniteStateMachine as FSM
 import json
 
-#The same as in image processing TODO: Make a global define file
 BLUE, RED, YELLOW, ERROR = (i for i in range(4))
 
 def packOrders():
@@ -17,8 +16,8 @@ def packOrders():
     modbus_client = Client(ip="192.168.0.20", port=5020)  # The port will stay 5020
     db_orders = MesOrder()
     modbus_client.connect()
-    #mir = RestMiR() TODO IMPLEMENT THIS
     stateMachine = FSM.getInstance()
+    #mir = RestMiR() #TODO IMPLEMENT THIS
 
     for order_counter in range(4):
         if stateMachine.state != "Execute":
@@ -34,7 +33,6 @@ def packOrders():
         reds = do_order["red"]
         blues = do_order["blue"]
         yellows = do_order["yellow"]
-        # TODO make into function
         while yellows > 0:
             if stateMachine.state != "Execute":
                 break
@@ -98,6 +96,20 @@ def packOrders():
         logging.info("Sub-order completed")
         db_orders.delete_order(do_order)
 
+        # #Mir stuff TODO: Comment this in to use the mir(NOT TESTED)
+        # if order_counter == 4:
+        #     order_counter = 0
+        #     mir_mission = mir.get_mission("GoTo6")
+        #     mir.add_mission_to_queue(mir_mission)
+        #
+        #     while mir.read_register(1) != 1:  # wait for MIR to arrive
+        #         mir.read_register(1)
+        #     # add function to put boxes on MIR & flag to make sure we are done with packing
+        #     mir.write_register(1, 0)  # MIR can go
+        #     mir.write_register(2, 1)  # MIR go to base
+        #     # change state to completing by returning
+        #     return
+
 
 def main_thread_loop():
     stateMachine = FSM.getInstance()
@@ -130,20 +142,3 @@ def main_thread_loop():
 
         # TODO: REMOVE THIS SLEEP WHEN NOT TESTING ANYMORE
         time.sleep(1)
-
-#    if order_counter == 2:
-#        order_counter = 0
-#       mir_mission = mir.get_mission("GoTo6")
-#       mir.add_mission_to_queue(mir_mission)
-# we calculate based on how many times we delete an order, can be done in a lot of ways
-#print("Number of completed orders: " + str(db_orders.counter % 4))
-'''
-while mir.read_register(1) != 1: # wait for MIR to arrive
-mir.read_register(1)
-# add function to put boxes on MIR & flag to make sure we are done with packing
-mir.write_register(1, 0)  # MIR can go
-mir.write_register(2, 1)  # MIR go to base
-# change state to completing
-'''
-
-
