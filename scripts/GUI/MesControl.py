@@ -16,6 +16,14 @@ from scripts.RobotControl import RobotControl
 import logging
 import json
 
+__RED__ = [1, 0, 0, 1]
+__RED_LOW__ = [0.25, 0, 0, 1]
+__GREEN__ = [0, 1, 0, 1]
+__GREEN_LOW__ = [0, 0.25, 0, 1]
+__YELLOW__ = [1, 1, 0, 1]
+__YELLOW_LOW__ = [0.25, 0.25, 0, 1]
+
+
 def callback(instance):
     logging.info('[MesControl] The button <%s> is being pressed' % instance.text)
 
@@ -43,49 +51,50 @@ class MesControl(Screen):
     def change_state_abort(self, instance):
         self.state_machine.change_state('Abort', '*', 'Aborting')
 
-    def lights_color(self, R, G, B):
-        if R == False:
-            red = 0.25
-        else:
-            red = 1
-        if G == False:
-            green = 0.25
-        else:
-            green = 1
-        if B == False:
-            blue = 0.25
-        else:
-            blue = 1
+    def lights_color(self, R, Y, G):
 
-        self.btn_light1.background_color = [red, 0 , 0, 1]
-        self.btn_light2.background_color = [0, green , 0, 1]
-        self.btn_light3.background_color = [0, 0 , blue, 1]
+        if R:
+            red = __RED__
+        else:
+            red = __RED_LOW__
+        if Y:
+            yellow = __YELLOW__
+        else:
+            yellow = __YELLOW_LOW__
+        if G:
+            green = __GREEN__
+        else:
+            green = __GREEN_LOW__
+
+        self.btn_light1.background_color = green
+        self.btn_light2.background_color = yellow
+        self.btn_light3.background_color = red
 
     def light_tower(self, instance):
         state = self.state_machine.state
         if state == 'Stopping' or state == 'Stopped':
             self.lights_color(True, False, False)
         elif state == 'Aborting' or state == 'Aborted' or state == 'Clearing':
-            if self.btn_light3.background_color == [0, 0, 1, 1]:
+            if self.btn_light1.background_color == __GREEN__: #Green low color
                 self.lights_color(False, False, True)
             else:
                 self.lights_color(False, False, False)
         elif state == 'Resetting':
-            if self.btn_light2.background_color == [0, 1, 0, 1]:
+            if self.btn_light2.background_color == __YELLOW__: #Yellow low color
                 self.lights_color(False, True, False)
             else:
                 self.lights_color(False, False, False)
         elif state == 'Suspending' or state == 'Suspended':
             self.lights_color(False, True, False)
         elif state == 'Idle':
-            if self.btn_light1.background_color == [1, 0, 0, 1]:
+            if self.btn_light1.background_color == __GREEN__:
                 self.lights_color(False, False, False)
             else:
-                self.lights_color(True, False, False)
-        elif state == 'Starting' or state == 'Executing' or state == 'Unholding' or state == 'Unsuspending':
-            self.lights_color(True, False, False)
+                self.lights_color(False, False, True)
+        elif state == 'Starting' or state == 'Execute' or state == 'Unholding' or state == 'Unsuspending':
+            self.lights_color(False, False, True)
         elif state == 'Holding' or state == 'Held':
-            if self.btn_light1.background_color == self.btn_light2.background_color == [1, 1, 0, 1]:
+            if self.btn_light3.background_color == __RED__ and self.btn_light2.background_color == __YELLOW__ :
                 self.lights_color(True, True, False)
             else:
                 self.lights_color(False, False, False)

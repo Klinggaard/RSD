@@ -47,7 +47,7 @@ class MesOrder():
                     orderdict["id"] = minimal_id
             #print(orderdict)
         except ():
-            logging.ERROR('[MesOrder] JSON error')
+            logging.ERROR('MesOrder' + ' JSON error')
 
         #print('id:' + ' ' + str(minimal_id))
         # PUT - update order, we process it, so it's status changes to taken after that
@@ -58,6 +58,8 @@ class MesOrder():
         orderdict["ticket"] = decoded_update['ticket']
         #print('ticket:' + ' ' + orderdict["ticket"])
         #print(orderdict)
+
+        logging.info("[MesOrder] %s %s", str('Taking order with ID: '), str(minimal_id))
         return orderdict
 
     def delete_order(self, processing):

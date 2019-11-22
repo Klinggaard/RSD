@@ -82,7 +82,6 @@ class MesOrderScreen(Screen):
 
     def get_orders(self):
         # Get from database, needs MainDB to be running or on the backbone network
-        # TODO Change to MesOrder when connected to backbone ONLY USE THIS FOR TESTING ON TEST DB
         # try:
         #     response = requests.get('http://127.0.0.1:5000/orders')
         #     decoded = json.loads(response.content)  # convert from JSON to dictionary

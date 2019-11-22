@@ -11,9 +11,9 @@ import json
 
 #The same as in image processing TODO: Make a global define file
 BLUE, RED, YELLOW, ERROR = (i for i in range(4))
-robot = RobotControl()
 
 def packOrders():
+    robot = RobotControl.getInstance()
     modbus_client = Client(ip="192.168.0.20", port=5020)  # The port will stay 5020
     db_orders = MesOrder()
     modbus_client.connect()
@@ -101,6 +101,7 @@ def packOrders():
 
 def main_thread_loop():
     stateMachine = FSM.getInstance()
+    robot = RobotControl.getInstance()
     while True:
         logging.info(str('[State] {}').format(stateMachine.state))
         execute_state = stateMachine.state
