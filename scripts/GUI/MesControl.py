@@ -48,7 +48,7 @@ class MesControl(Screen):
     def change_state_clearing(self, instance):
         self.state_machine.change_state('Clear', 'Aborted', 'Clearing')
 
-    def change_state_abort(self, instance):
+    def change_state_held(self, instance):
         self.state_machine.change_state('Unhold', 'Held', 'Unholding')
 
     def lights_color(self, R, Y, G):
@@ -174,7 +174,7 @@ class MesControl(Screen):
         btn_reset.bind(on_press=self.change_state_reset)
         btn_stop.bind(on_press=self.change_state_stopping)
         btn_clear.bind(on_press=self.change_state_clearing)
-        btn_abort.bind(on_press=self.change_state_abort)
+        btn_abort.bind(on_press=self.change_state_held)
         # btn_reset.bind(on_press=callback)
 
         leftButtons = BoxLayout(orientation='vertical', size_hint=(0.2, 0.8), spacing=30,
