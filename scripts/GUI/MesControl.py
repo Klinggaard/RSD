@@ -49,7 +49,7 @@ class MesControl(Screen):
         self.state_machine.change_state('Clear', 'Aborted', 'Clearing')
 
     def change_state_abort(self, instance):
-        self.state_machine.change_state('Abort', '*', 'Aborting')
+        self.state_machine.change_state('Unhold', 'Held', 'Unholding')
 
     def lights_color(self, R, Y, G):
 
@@ -168,7 +168,7 @@ class MesControl(Screen):
         btn_reset = Button(text='reset')
         btn_stop = Button(text='stop')
         btn_clear = Button(text='clear')
-        btn_abort = Button(text='abort')
+        btn_abort = Button(text='unhold')
 
         btn_start.bind(on_press=self.change_state_execute_from_idle)
         btn_reset.bind(on_press=self.change_state_reset)
