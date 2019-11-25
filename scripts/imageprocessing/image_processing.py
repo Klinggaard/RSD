@@ -1,4 +1,4 @@
-
+import logging
 import getpass as gp
 assert gp.getuser() == "pi", "Can't run on other equipment pi"
 
@@ -10,7 +10,7 @@ import time
 camera = PiCamera()
 
 BLUE, RED, YELLOW, ERROR = (i for i in range(4))
-_colour_thresh = 0.8 * 256
+_colour_thresh = 0.7 * 256
 
 
 # Colour ranges in HSV
@@ -60,9 +60,8 @@ def _check_brick(frame, brick):
     for c in _colour_ranges:
         binary_image = _colour_segmentation(crop_frame, _colour_ranges[c])
         average = binary_image.mean(axis=0).mean(axis=0)
-
+        print("colour avg : " + str(average))
         if average > _colour_thresh:
-            print(average)
             ret_list.append(count)
         count += 1
     print(ret_list)
