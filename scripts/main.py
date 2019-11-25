@@ -1,7 +1,7 @@
 import threading
 
 from scripts.GUI.mesGUI import MainApp
-from scripts.execute import main_thread_loop
+from scripts.execute import ExecuteOrder
 from scripts.finite_state_machine import FiniteStateMachine as FSM
 from scripts.SignalLight import LightTower
 from scripts.RobotControl import RobotControl
@@ -11,7 +11,8 @@ stateMachine = FSM(FSM.states_packml, FSM.transition)
 robotCtonrol = RobotControl()
 
 #Create a packml thread which runs the state logic
-executeThread = threading.Thread(target=main_thread_loop, args=[])
+orders = ExecuteOrder()
+executeThread = threading.Thread(target=orders.main_thread_loop(), args=[]) 
 executeThread.start()
 
 #create a lighttower thread (THIS IS NOT TESTED)
