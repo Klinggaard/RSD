@@ -41,7 +41,7 @@ from scripts.imageprocessing.image_processing import check_bricks
 import logging
 logging.basicConfig()
 log = logging.getLogger()
-log.setLevel(logging.DEBUG)
+log.setLevel(logging.ERROR)
 
 #---------------------------------------------------------------------------#
 # define your callback process
@@ -97,7 +97,7 @@ def updating_writer(a):
 
     :param arguments: The input arguments to the call
     '''
-    log.debug("updating the context")
+    #log.debug("updating the context")
     context  = a[0]
     register = 3
     slave_id = 0x00
