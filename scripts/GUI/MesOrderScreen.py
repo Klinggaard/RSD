@@ -40,13 +40,14 @@ class MesOrderScreen(Screen):
         decoded = self.get_orders()
         # look for an order with smallest ID which is not taken, so we can process it
         #Comment this for loop out if not on the RSD backbone server(or connect another flash server)
-        for x in decoded['orders']:
-            self.my_table.add_row(
-                [TextInput, {'text': str(x["id"]), 'color_click': [1, 1, 1, 1], 'font_size': 18, 'halign':'center', 'disabled': True, 'background_disabled': ''}],
-                [TextInput, {'text': str(x["red"]), 'color_click': [1, 1, 1, 1], 'font_size': 18, 'halign':'center', 'disabled': True, 'background_disabled': ''}],
-                [TextInput, {'text': str(x["blue"]), 'color_click': [1, 1, 1, 1], 'font_size': 18, 'halign':'center', 'disabled': True, 'background_disabled': ''}],
-                [TextInput, {'text': str(x["yellow"]), 'color_click': [1, 1, 1, 1], 'font_size': 18, 'halign':'center', 'disabled': True, 'background_disabled': ''}],
-                [TextInput, {'text': str(x["status"]), 'color_click': [1, 1, 1, 1], 'font_size': 18, 'halign':'center', 'disabled': True, 'background_disabled': ''}])
+        if(decoded != None):
+            for x in decoded['orders']:
+                self.my_table.add_row(
+                    [TextInput, {'text': str(x["id"]), 'color_click': [1, 1, 1, 1], 'font_size': 18, 'halign':'center', 'disabled': True, 'background_disabled': ''}],
+                    [TextInput, {'text': str(x["red"]), 'color_click': [1, 1, 1, 1], 'font_size': 18, 'halign':'center', 'disabled': True, 'background_disabled': ''}],
+                    [TextInput, {'text': str(x["blue"]), 'color_click': [1, 1, 1, 1], 'font_size': 18, 'halign':'center', 'disabled': True, 'background_disabled': ''}],
+                    [TextInput, {'text': str(x["yellow"]), 'color_click': [1, 1, 1, 1], 'font_size': 18, 'halign':'center', 'disabled': True, 'background_disabled': ''}],
+                    [TextInput, {'text': str(x["status"]), 'color_click': [1, 1, 1, 1], 'font_size': 18, 'halign':'center', 'disabled': True, 'background_disabled': ''}])
 
 
         self.my_table.label_panel.visible = True

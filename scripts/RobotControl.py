@@ -22,12 +22,15 @@ class RobotControl:
         return RobotControl.__instance
 
     def __init__(self):
-        self.rtde_c = rtde_control.RTDEControlInterface("192.168.0.99")
-        self.rtde_r = rtde_receive.RTDEReceiveInterface("192.168.0.99")
-        self.rtde_i = rtde_io.RTDEIOInterface("192.168.0.99")
-
-        if not self.rtde_c.isConnected() or not self.rtde_r.isConnected():
-            logging.ERROR("[RobotControl] NOT CONNECTED TO RTDE")
+        self.rtde_c = None
+        self.rtde_r = None
+        self.rtde_i = None
+        try:
+            self.rtde_c = rtde_control.RTDEControlInterface("192.168.0.99")
+            self.rtde_r = rtde_receive.RTDEReceiveInterface("192.168.0.99")
+            self.rtde_i = rtde_io.RTDEIOInterface("192.168.0.99")
+        except RuntimeError:
+            logging.error("[RobotControl] Cannot connect to Universal robot")
 
         self.velocity = 0.5
         self.acceleration = 1.2
@@ -48,9 +51,12 @@ class RobotControl:
         self.rtde_c.moveJ(pose, self.velocity, self.acceleration)
 
     def lights(self, l1=False, l2=False, l3=False):
-        self.rtde_i.setStandardDigitalOut(1, l1)
-        self.rtde_i.setStandardDigitalOut(2, l2)
-        self.rtde_i.setStandardDigitalOut(3, l3)
+        try:
+            self.rtde_i.setStandardDigitalOut(1, l1)
+            self.rtde_i.setStandardDigitalOut(2, l2)
+            self.rtde_i.setStandardDigitalOut(3, l3)
+        except AttributeError:
+            logging.error("[RobotControl] Cannot set IO, not connected to Universal Robot")
 
     def readInputBits(self):
         return self.rtde_r.getActualDigitalInputBits()

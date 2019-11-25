@@ -1,6 +1,6 @@
 import requests
 import time
-
+import logging
 #Probable will change after network is ready
 url = 'http://10.10.19.40/api/v2.0.0/'
 
@@ -16,19 +16,25 @@ class RestMiR():
 
     #We need to put the name of our mission
     def get_mission(self, mission_name="MISSION_NAME"):
-        response = requests.get(url + 'missions', headers=self.authorization)
+        response = None
+        try:
+            response = requests.get(url + 'missions', headers=self.authorization)
+        except requests.exceptions.ConnectionError:
+            logging.error("[MiR] Cannot request mission")
+            time.sleep(0.1) #sleep 0.1 to not ddos flask server
+            self.get_mission(mission_name)
+
         mission = ""
         if response.status_code != 200:
-            print(response.status_code)
+            logging.info(response.status_code)
         for counter in response.json():
             if counter["name"] == mission_name:
                 mission = counter
-                print(mission)
+                logging.info(mission)
         return mission
 
     def add_mission_to_queue(self, mission):
         data = {"mission_id": str(mission["guid"])}
-        print(data)
         response = requests.post(url + "mission_queue", json=data, headers=self.authorization)
         if response.status_code != 201:
             print("ERROR" + str(response.status_code))
@@ -65,4 +71,4 @@ class RestMiR():
 # time.sleep(2)
 # mir.write_register(6, 0)  # MIR can go
 # print("bye MIR")
-# change state to completing
+# #change state to completing

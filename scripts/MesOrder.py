@@ -16,7 +16,7 @@ class MesOrder():
             decoded = json.loads(response.content)  # convert from JSON to dictionary
             return decoded
         except requests.exceptions.ConnectionError:
-            logging.error("[MesOrder] Connection error")
+            logging.error("[MesOrder] Cannot connect to database")
         return
 
 

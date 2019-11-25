@@ -10,9 +10,12 @@ from scripts.finite_state_machine import FiniteStateMachine as FSM
 #
 robot = RobotControl()
 
+robot.openGripper()
+robot.moveRobot("BluePreGrasp")
+robot.moveRobot("BlueGrasp")
 while True:
-    print(robot.readInputBits())
-    time.sleep(0.5)
+    print(robot.getQ())
+    time.sleep(1)
 # #robot.putInBox(0)
 # robot.velocity = 0.8
 # robot.takeBoxesFromFeeder()

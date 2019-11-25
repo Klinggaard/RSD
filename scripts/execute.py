@@ -20,7 +20,10 @@ def packOrders():
     if not modbus_client:
         logging.ERROR("[PackOrders] Cannot connect to modbus")
     #db_orders = MesOrder()
-    modbus_client.connect()
+    while(not modbus_client.connect()):
+        logging.error("[PackOrders] Failed to connect to modbus, reconnecting...")
+        time.sleep(1)
+
     stateMachine = FSM.getInstance()
     mir = RestMiR() #TODO IMPLEMENT THIS
 
@@ -107,17 +110,18 @@ def packOrders():
             mir_mission = mir.get_mission("GoTo6")
             mir.add_mission_to_queue(mir_mission)
 
-    guid = mir.get_mission("GoTo6")
-    mir.add_mission_to_queue(guid)
-    while mir.read_register(6) != 1: # wait for MIR to arrive
-        mir.read_register(1)
-    logging.info("mir arrived")
-    # add function to put boxes on MIR & flag to make sure we are done with packing
-    time.sleep(2)
-    mir.write_register(6, 0)  # MIR can go
-    logging.info("bye MIR")
-    # change state to complete ??
-    #stateMachine.change_state('SC', 'Execute', 'Completing')
+    if stateMachine.state == "Execute":
+        guid = mir.get_mission("GoTo6")
+        mir.add_mission_to_queue(guid)
+        while mir.read_register(6) != 1: # wait for MIR to arrive
+            mir.read_register(1)
+        logging.info("mir arrived")
+        # add function to put boxes on MIR & flag to make sure we are done with packing
+        time.sleep(2)
+        mir.write_register(6, 0)  # MIR can go
+        logging.info("bye MIR")
+        # change state to complete ??
+        #stateMachine.change_state('SC', 'Execute', 'Completing')
 
     modbus_client.close()
 
