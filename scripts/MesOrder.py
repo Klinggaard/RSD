@@ -23,7 +23,7 @@ class MesOrder():
     def get_put_order(self):
         # GET all orders
         response = requests.get(self.url)
-        print(response.content)
+        #print(response.content)
         decoded = json.loads(response.content)  # convert from JSON to dictionary
         orderdict = {
             "id": 0,
@@ -45,19 +45,21 @@ class MesOrder():
                     orderdict["blue"] = xx["blue"]
                     orderdict["yellow"] = xx["yellow"]
                     orderdict["id"] = minimal_id
-            print(orderdict)
+            #print(orderdict)
         except ():
-            print('JSON error')
+            logging.ERROR('MesOrder' + ' JSON error')
 
-        print('id:' + ' ' + str(minimal_id))
+        #print('id:' + ' ' + str(minimal_id))
         # PUT - update order, we process it, so it's status changes to taken after that
         statement_put = self.url + '/' + str(minimal_id)
         update_for_ticket = requests.put(statement_put)
         decoded_update = json.loads(update_for_ticket.content)
-        print(decoded_update)
+        #print(decoded_update)
         orderdict["ticket"] = decoded_update['ticket']
-        print('ticket:' + ' ' + orderdict["ticket"])
-        print(orderdict)
+        #print('ticket:' + ' ' + orderdict["ticket"])
+        #print(orderdict)
+
+        logging.info("[MesOrder] %s %s", str('Taking order with ID: '), str(minimal_id))
         return orderdict
 
     def delete_order(self, processing):

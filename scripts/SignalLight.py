@@ -1,96 +1,47 @@
 import rtde_io as io
 import time
 import random
-from scripts.finite_state_machine import FiniteStateMachine
+from scripts.finite_state_machine import FiniteStateMachine as FSM
+from scripts.RobotControl import RobotControl
 
-rtde_io = io.RTDEIOInterface("192.168.0.99")
+period = 0.5
 
-def lights_on_of():
+class LightTower:
 
-    print("TURNING ON THE LIGHTS")
-    #Light IO
-    rtde_io.setStandardDigitalOut(1, True)
-    rtde_io.setStandardDigitalOut(2, True)
-    rtde_io.setStandardDigitalOut(3, True)
+    def __init__(self):
+        self.robot = RobotControl.getInstance()
 
-    #Valve IO
-    rtde_io.setStandardDigitalOut(0,True)
+    def light_tower(self):
 
-
-    while(True):
-        time.sleep(1)
-        rtde_io.setStandardDigitalOut(1, False)
-        rtde_io.setStandardDigitalOut(2, False)
-        rtde_io.setStandardDigitalOut(3, False)
-        rtde_io.setStandardDigitalOut(0,True)
-        time.sleep(1)
-        rtde_io.setStandardDigitalOut(1, True)
-        rtde_io.setStandardDigitalOut(2, True)
-        rtde_io.setStandardDigitalOut(3, True)
-        rtde_io.setStandardDigitalOut(0,True)
-
-#TODO IMPLEMENT THIS FOR MINIMAL CODE DUPLICATION
-def lights(l1=False, l2=False, l3=False):
-    rtde_io.setStandardDigitalOut(1, l1)
-    rtde_io.setStandardDigitalOut(2, l2)
-    rtde_io.setStandardDigitalOut(3, l3)
-
-
-
-def light_tower(state):
-    if state=='Stopping' or state=='Stopped':
-        rtde_io.setStandardDigitalOut(3,True)
-        rtde_io.setStandardDigitalOut(2,False)
-        rtde_io.setStandardDigitalOut(1,False)
-    elif state=='Aborting' or state=='Aborted' or state=='Clearing':
-        while (True):
-            rtde_io.setStandardDigitalOut(3,True)
-            rtde_io.setStandardDigitalOut(2,False)
-            rtde_io.setStandardDigitalOut(1,False)
-            time.sleep(1)
-            rtde_io.setStandardDigitalOut(3,False)
-            rtde_io.setStandardDigitalOut(2,False)
-            rtde_io.setStandardDigitalOut(1,False)
-            time.sleep(1)
-    elif  state=='Resetting':
-         while True:
-            rtde_io.setStandardDigitalOut(3,False)
-            rtde_io.setStandardDigitalOut(2,True)
-            rtde_io.setStandardDigitalOut(1,False)
-            time.sleep(1)
-            rtde_io.setStandardDigitalOut(3,False)
-            rtde_io.setStandardDigitalOut(2,False)
-            rtde_io.setStandardDigitalOut(1,False)
-            time.sleep(1)
-    elif state=='Suspending' or state=='Suspended':
-        rtde_io.setStandardDigitalOut(2,True)
-        rtde_io.setStandardDigitalOut(3,False)
-        rtde_io.setStandardDigitalOut(1,False)
-    elif state=='Idle':
-         while (True):
-            rtde_io.setStandardDigitalOut(3,False)
-            rtde_io.setStandardDigitalOut(2,False)
-            rtde_io.setStandardDigitalOut(1,True)
-            time.sleep(1)
-            rtde_io.setStandardDigitalOut(3,False)
-            rtde_io.setStandardDigitalOut(2,False)
-            rtde_io.setStandardDigitalOut(1,False)
-            time.sleep(1)
-    elif state=='Starting' or state=='Executing' or state=='Unholding' or state=='Unsuspending':
-        rtde_io.setStandardDigitalOut(1,True)
-        rtde_io.setStandardDigitalOut(3,False)
-        rtde_io.setStandardDigitalOut(2,False)
-    elif state=='Holding' or state=='Held':
-         while (True):
-            rtde_io.setStandardDigitalOut(3,False)
-            rtde_io.setStandardDigitalOut(2,True)
-            rtde_io.setStandardDigitalOut(1,True)
-            time.sleep(1)
-            rtde_io.setStandardDigitalOut(3,False)
-            rtde_io.setStandardDigitalOut(2,False)
-            rtde_io.setStandardDigitalOut(1,False)
-            time.sleep(1)
-
-while (True):
-    State=FiniteStateMachine.state
-    light_tower(State)
+        while True:
+            stateMachine = FSM.getInstance()
+            state = stateMachine.state
+            if state=='Stopping' or state=='Stopped':
+                self.robot.lights(True,False,False)
+                time.sleep(1)
+            elif state=='Aborting' or state=='Aborted' or state=='Clearing':
+                self.robot.lights(False, False, True)
+                time.sleep(period)
+                self.robot.lights()
+                time.sleep(period)
+            elif  state=='Resetting':
+                self.robot.lights(False, True, False)
+                time.sleep(period)
+                self.robot.lights()
+                time.sleep(period)
+            elif state=='Suspending' or state=='Suspended':
+                self.robot.lights(False, True, False)
+                time.sleep(period)
+            elif state=='Idle':
+                self.robot.lights(True, False, False)
+                time.sleep(period)
+                self.robot.lights()
+                time.sleep(period)
+            elif state=='Starting' or state=='Execute' or state=='Unholding' or state=='Unsuspending':
+                self.robot.lights(True, False, False)
+                time.sleep(period)
+            elif state=='Holding' or state=='Held':
+                self.robot.lights(True, True, False)
+                time.sleep(period)
+                self.robot.lights()
+                time.sleep(period)

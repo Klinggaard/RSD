@@ -12,7 +12,6 @@ from scripts.GUI.OEEScreen import OEEScreen
 from scripts.GUI.MesOrderScreen import MesOrderScreen
 from kivy.config import Config
 from kivy.uix.screenmanager import ScreenManager, Screen
-from scripts.execute import main_thread_loop
 from scripts.finite_state_machine import FiniteStateMachine as FSM
 import threading
 import json

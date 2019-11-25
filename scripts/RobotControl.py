@@ -11,10 +11,24 @@ import rootpath
 #over box grasp: [-1.6843403021441858, -1.7713800869383753, -2.538630485534668, 4.318931265468262, -1.2982853094684046, -1.547690216694967]
 
 class RobotControl:
+
+    __instance = None  # INITIAL INSTANCE OF CLASS
+
+    @staticmethod
+    def getInstance():
+        """ Static access method. """
+        if RobotControl.__instance == None:
+            RobotControl()
+        return RobotControl.__instance
+
     def __init__(self):
         self.rtde_c = rtde_control.RTDEControlInterface("192.168.0.99")
         self.rtde_r = rtde_receive.RTDEReceiveInterface("192.168.0.99")
         self.rtde_i = rtde_io.RTDEIOInterface("192.168.0.99")
+
+        if not self.rtde_c.isConnected() or not self.rtde_r.isConnected():
+            logging.ERROR("[RobotControl] NOT CONNECTED TO RTDE")
+
         self.velocity = 0.5
         self.acceleration = 1.2
         self.datastore = ""
@@ -22,10 +36,24 @@ class RobotControl:
         with open(projectPath + "/scripts/PPP/grasp_config.json", 'r') as f:
             self.datastore = json.load(f)
 
+        """ Virtually private constructor. """
+        if RobotControl.__instance != None:
+            raise Exception("This class is a singleton!")
+        else:
+            RobotControl.__instance = self
+
     def moveRobot(self, pose, vel, acc):
         self.velocity = vel
         self.acceleration = acc
         self.rtde_c.moveJ(pose, self.velocity, self.acceleration)
+
+    def lights(self, l1=False, l2=False, l3=False):
+        self.rtde_i.setStandardDigitalOut(1, l1)
+        self.rtde_i.setStandardDigitalOut(2, l2)
+        self.rtde_i.setStandardDigitalOut(3, l3)
+
+    def readInputBits(self):
+        return self.rtde_r.getActualDigitalInputBits()
 
     def moveRobot(self, pose):
         self.rtde_c.moveJ(pose, self.velocity, self.acceleration)
@@ -87,6 +115,10 @@ class RobotControl:
     def loadMIR(self):
         #TODO Add a sequence of actions to load boxes onto the mir
         pass
+
+    def dumpBrick(self):
+        self.moveRobot("Dump")
+        self.openGripper()
 
     def closeGripper(self):
         self.rtde_i.setStandardDigitalOut(0, False)
