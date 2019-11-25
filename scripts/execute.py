@@ -28,10 +28,6 @@ class ExecuteOrder():
     refill_blue = 18
     current_order = False
 
-    def __init__(self, something):
-        # think of what else we need or can put there to make life easier
-        self.something
-
     def prepare_orders(self):
         for order_counter in range(4):
             if not self.current_order:
