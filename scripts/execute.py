@@ -13,28 +13,31 @@ BLUE, RED, YELLOW, ERROR = (i for i in range(4))
 
 
 class ExecuteOrder():
-    robot = RobotControl.getInstance()
-    modbus_client = Client(ip="192.168.0.20", port=5020)  # The port will stay 5020
-    # CHANGE THAT EXCEPTION
-    #if not modbus_client:
-    #    logging.ERROR("[PackOrders] Cannot connect to modbus")
-    modbus_client.connect()
-    stateMachine = FSM.getInstance()
-    mir = RestMiR()
-    db_orders = MesOrder()
 
-    refill_yellow = 18
-    refill_red = 18
-    refill_blue = 18
-    current_order = False
-    order_counter = 0
-    order_prepared = False
+    def __init__(self):
+        self.robot = RobotControl.getInstance()
+        self.modbus_client = Client(ip="192.168.0.20", port=5020)  # The port will stay 5020
+        # CHANGE THAT EXCEPTION
+        #if not modbus_client:
+        #    logging.ERROR("[PackOrders] Cannot connect to modbus")
+        self.modbus_client.connect()
+        self.stateMachine = FSM.getInstance()
+        self.mir = RestMiR()
+        self.db_orders = MesOrder()
+
+        self.refill_yellow = 18
+        self.refill_red = 18
+        self.refill_blue = 18
+        self.current_order = False
+        self.order_counter = 0
+        self.order_prepared = False
 
     def prepare_orders(self):
         while self.order_counter < 4:
             if not self.current_order:
                 do_order = self.db_orders.get_put_order()
                 self.current_order = True
+
                 reds = do_order["red"]
                 blues = do_order["blue"]
                 yellows = do_order["yellow"]
@@ -145,6 +148,9 @@ class ExecuteOrder():
 
     def main_thread_loop(self):
         while True:
+
+            #TODO: ADD IF STATEMENTS TO READ IF THE ROBOT IS IN EMEGENCY STOP
+
             logging.info(str('[State] {}').format(self.stateMachine.state))
             execute_state = self.stateMachine.state
 
@@ -153,14 +159,9 @@ class ExecuteOrder():
                 self.stateMachine.change_state('SC', 'Starting', 'Execute')
 
             elif execute_state == 'Execute':
+                #TODO: DONT CHANGE STATE AND EXECUTE CODE, LET THE CODE BE EXECUTED IN THE RESPECTIVE STATES
                 if not self.order_prepared:
                     self.prepare_orders()
-                self.stateMachine('Suspend', 'Execute', 'Suspending')
-                self.stateMachine.change_state('SC', 'Suspending', 'Suspended')
-                self.pack_orders()
-                self.stateMachine.change_state('SC', 'Execute', 'Completing')
-                self.order_prepared = False
-
             elif execute_state == 'Completing':
                 self.stateMachine.change_state('SC', 'Completing', 'Complete')
 
@@ -189,30 +190,28 @@ class ExecuteOrder():
                 # Stop MES
                 self.stateMachine.change_state('SC', 'Stopping', 'Stopped')
 
-            elif execute_state == 'Stopped':
-                self.stateMachine.change_state('Reset', 'Stopped', 'Resetting')
-
             elif execute_state == 'Holding':
-                # logging.info('Holding state - stop robot')
                 self.robot.moveRobot("Reset")
                 self.robot.openGripper()
                 self.robot.stopRobot()
                 self.stateMachine.change_state('SC', 'Holding', 'Held')
 
             elif execute_state == 'Unholding':
-                self.stateMachine.change_state('SC', 'Unholding', 'Execute')
                 self.refill_blue = 18
                 self.refill_red = 18
                 self.refill_yellow = 18
+                self.stateMachine.change_state('SC', 'Unholding', 'Execute')
 
-            #elif execute_state == 'Suspending':
-            #    self.stateMachine.change_state('SC', 'Suspending', 'Suspended')
+            elif execute_state == 'Suspending':
+                self.stateMachine.change_state('SC', 'Suspending', 'Suspended')
 
-            #elif execute_state == 'Suspended':
-            #    self.stateMachine.change_state('Unsuspend', 'Suspended', 'Unsuspending')
+            elif execute_state == 'Suspended':
+                self.stateMachine.change_state('Unsuspend', 'Suspended', 'Unsuspending')
+                self.pack_orders()
 
-            #elif execute_state == 'Unsuspending':
-            #    self.stateMachine.change_state('SC', 'Unsuspending', 'Execute')
+            elif execute_state == 'Unsuspending':
+                self.order_prepared = False
+                self.stateMachine.change_state('SC', 'Unsuspending', 'Execute')
 
             # TODO: REMOVE THIS SLEEP WHEN NOT TESTING ANYMORE
             time.sleep(1)

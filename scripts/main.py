@@ -12,7 +12,7 @@ robotCtonrol = RobotControl()
 
 #Create a packml thread which runs the state logic
 orders = ExecuteOrder()
-executeThread = threading.Thread(target=orders.main_thread_loop(), args=[]) 
+executeThread = threading.Thread(target=orders.main_thread_loop, args=[])
 executeThread.start()
 
 #create a lighttower thread (THIS IS NOT TESTED)

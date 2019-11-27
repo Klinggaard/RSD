@@ -22,16 +22,17 @@ class RestMiR():
         except requests.exceptions.ConnectionError:
             logging.error("[MiR] Cannot request mission")
             time.sleep(0.1) #sleep 0.1 to not ddos flask server
-            self.get_mission(mission_name)
+            #self.get_mission(mission_name)
 
         mission = ""
-        if response.status_code != 200:
-            logging.info(response.status_code)
-        for counter in response.json():
-            if counter["name"] == mission_name:
-                mission = counter
-                logging.info(mission)
-        return mission
+        if response != None:
+            if response.status_code != 200:
+                logging.info(response.status_code)
+            for counter in response.json():
+                if counter["name"] == mission_name:
+                    mission = counter
+                    logging.info(mission)
+            return mission
 
     def add_mission_to_queue(self, mission):
         data = {"mission_id": str(mission["guid"])}

@@ -17,7 +17,7 @@ class LightTower:
             stateMachine = FSM.getInstance()
             state = stateMachine.state
             if state=='Stopping' or state=='Stopped':
-                self.robot.lights(True,False,False)
+                self.robot.lights(False,False,True)
                 time.sleep(1)
             elif state=='Aborting' or state=='Aborted' or state=='Clearing':
                 self.robot.lights(False, False, True)
