@@ -27,19 +27,21 @@ class ExecuteOrder():
     refill_red = 18
     refill_blue = 18
     current_order = False
+    order_counter = 0
+    order_prepared = False
 
     def prepare_orders(self):
-        for order_counter in range(4):
+        while self.order_counter < 4:
             if not self.current_order:
                 do_order = self.db_orders.get_put_order()
                 self.current_order = True
+                reds = do_order["red"]
+                blues = do_order["blue"]
+                yellows = do_order["yellow"]
             # Dummy order(FOR TESTING OUTSIDE 4.0)
             # with open("../scripts/PPP/grasp_config.json", 'r') as f:
             #     datastore = json.load(f)
             # do_order = datastore["DummyOrder"]
-            reds = do_order["red"]
-            blues = do_order["blue"]
-            yellows = do_order["yellow"]
 
             while yellows > 0:
                 if self.stateMachine.state != "Execute":
@@ -51,7 +53,7 @@ class ExecuteOrder():
                     logging.error("Error, Modbus client / camera problem")
                     self.robot.dumpBrick()
                 if verify == YELLOW:
-                    self.robot.putInBox(order_counter)
+                    self.robot.putInBox(self.order_counter)
                     yellows -= 1
                     self.refill_yellow -= 1
                 else:
@@ -72,7 +74,7 @@ class ExecuteOrder():
                     logging.error("Error, Modbus client / camera problem")
                     self.robot.dumpBrick()
                 if verify == 1:
-                    self.robot.putInBox(order_counter)
+                    self.robot.putInBox(self.order_counter)
                     reds -= 1
                     self.refill_red -= 1
                 elif verify != 1:
@@ -94,7 +96,7 @@ class ExecuteOrder():
                     # add tossing out or going into hold state
                     self.robot.dumpBrick()
                 if verify == 0:
-                    self.robot.putInBox(order_counter)
+                    self.robot.putInBox(self.order_counter)
                     blues -= 1
                     self.refill_blue -= 1
                 elif verify != 0:
@@ -106,9 +108,10 @@ class ExecuteOrder():
                     logging.info("Fill in blue blocks container")
 
             logging.info("Sub-order completed")
+            self.order_counter += 1
             self.db_orders.delete_order(do_order)
             # 3rd order ready, call MIR
-            if order_counter == 2:
+            if self.order_counter == 2:
                 try:
                     mir_mission = self.mir.get_mission("GoTo6")
                     self.mir.add_mission_to_queue(mir_mission)
@@ -119,7 +122,9 @@ class ExecuteOrder():
                     self.stateMachine.change_state('Stop', 'Execute', 'Stopping')
                 else:
                     logging.info("MIR ordered")
-        self.current_order = False
+            self.current_order = False
+        self.order_counter = 0
+        self.order_prepared = True
         #self.modbus_client.close() # we connect when class object is created
 
     def pack_orders(self):
@@ -137,6 +142,7 @@ class ExecuteOrder():
         # change state to complete ??
         # stateMachine.change_state('SC', 'Execute', 'Completing')
 
+
     def main_thread_loop(self):
         while True:
             logging.info(str('[State] {}').format(self.stateMachine.state))
@@ -147,11 +153,13 @@ class ExecuteOrder():
                 self.stateMachine.change_state('SC', 'Starting', 'Execute')
 
             elif execute_state == 'Execute':
-                self.prepare_orders()
+                if not self.order_prepared:
+                    self.prepare_orders()
                 self.stateMachine('Suspend', 'Execute', 'Suspending')
                 self.stateMachine.change_state('SC', 'Suspending', 'Suspended')
                 self.pack_orders()
                 self.stateMachine.change_state('SC', 'Execute', 'Completing')
+                self.order_prepared = False
 
             elif execute_state == 'Completing':
                 self.stateMachine.change_state('SC', 'Completing', 'Complete')
