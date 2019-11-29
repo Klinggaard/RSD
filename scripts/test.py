@@ -10,18 +10,19 @@ from scripts.finite_state_machine import FiniteStateMachine as FSM
 #
 robot = RobotControl()
 
-robot.openGripper()
-robot.moveRobot("BluePreGrasp")
-robot.moveRobot("BlueGrasp")
+robot.moveRobot("MirDropZonePre0")
+robot.moveRobot("MirDropZone0")
+robot.moveRobot("MirDropZonePre0")
+
+robot.moveRobot("MirDropZonePre1")
+robot.moveRobot("MirDropZone1")
 while True:
     print(robot.getQ())
-    time.sleep(1)
-# #robot.putInBox(0)
-# robot.velocity = 0.8
-# robot.takeBoxesFromFeeder()
-# robot.moveRobot("TEST")
-# robot.putBoxesInFeeder()
-#
+    time.sleep(0.5)
+robot.moveRobot("MirDropZonePre1")
+
+
+
 # while True:
 #     robot.takeBoxesFromFeeder()
 #     robot.moveRobot("TEST")

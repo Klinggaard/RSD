@@ -50,6 +50,21 @@ class RobotControl:
         self.acceleration = acc
         self.rtde_c.moveJ(pose, self.velocity, self.acceleration)
 
+    def moveRobotPath(self, graspConfigList):
+        path = []
+        stats = None
+        point = None
+        for graspConfig in graspConfigList:
+            point = self.datastore[str(graspConfig)]['q']
+            stats = [self.velocity, self.acceleration, 0.1] #[VEL, ACC, BLEND]
+            path.append(point+stats)
+
+        #Set the blend in the endpoint to 0
+        path[0][8] = 0
+        path[len(graspConfigList)-1][8] = 0
+
+        self.rtde_c.moveJ(path)
+
     def lights(self, l1=False, l2=False, l3=False):
         try:
             self.rtde_i.setStandardDigitalOut(1, l1)
@@ -100,9 +115,13 @@ class RobotControl:
         self.moveRobot("BoxPreGrasp")
 
     def putBoxesInFeeder(self):
+        self.moveRobot("PostFeeder")
+        self.velocity = 0.3
         self.moveRobot("PreFeeder")
-        self.moveRobot("Feeder")
+        self.moveRobot("PutFeeder")
         self.openGripper()
+        self.moveRobot("PreFeeder")
+        self.velocity = 0.5
         self.moveRobot("PostFeeder")
 
     def putInBox(self, boxNumber):
@@ -114,13 +133,55 @@ class RobotControl:
 
 
 
-    def unloadMIR(self):
-        #TODO Add a sequence of actions to unload empty boxes from the mir onto the table
-        pass
+    def loadUnloadMIR(self):
 
-    def loadMIR(self):
-        #TODO Add a sequence of actions to load boxes onto the mir
-        pass
+        drop0 = ["Load0", "Load1", "Load2", "LoadMir", "MirDropZonePre0", "MirDropZone0"]
+        drop1 = ["Load0", "Load1", "Load2", "LoadMir", "MirDropZonePre1", "MirDropZone1"]
+        reversePath = ["LoadMir", "Load2", "Load1", "Load0"]
+        self.takeBoxesFromFeeder()
+        self.moveRobotPath(drop0)
+        self.openGripper()
+        self.moveRobotPath((["MirDropZonePre0"] + reversePath))
+        self.takeBoxesFromFeeder()
+        self.moveRobotPath(drop1)
+        self.openGripper()
+
+        # Push the boxes together
+        self.moveRobot("PushPreUp")
+        self.moveRobot("PushPre")
+        self.moveRobot("Push")
+        self.moveRobot("PushUp")
+
+        # grasp box on mir
+        self.moveRobot("MirBoxPreGrasp0")
+        self.velocity = 0.3
+        self.moveRobot("MirBoxGrasp0")
+        self.closeGripper()
+        self.moveRobot("MirBoxPreGrasp0")
+
+        # Load the boxes to the feeder
+        self.velocity = 0.5
+        self.moveRobotPath(reversePath + ["PostFeeder"])
+        self.putBoxesInFeeder()
+
+        # make sure the gripper is open
+        self.openGripper()
+
+        # move robot to mir
+        path = ["Load0", "Load1", "Load2", "LoadMir", "PushPreUp"]
+        self.moveRobotPath(path)
+
+        # grasp box on mir
+        self.moveRobot("MirBoxPreGrasp1")
+        self.velocity = 0.3
+        self.moveRobot("MirBoxGrasp1")
+        self.closeGripper()
+        self.moveRobot("MirBoxPreGrasp1")
+
+        # Load the boxes to the feeder
+        self.velocity = 0.5
+        self.moveRobotPath(reversePath + ["PostFeeder"])
+        self.putBoxesInFeeder()
 
     def dumpBrick(self):
         self.moveRobot("Dump")

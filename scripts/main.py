@@ -8,7 +8,7 @@ from scripts.RobotControl import RobotControl
 
 #Instanciate the state machine and Robot
 stateMachine = FSM(FSM.states_packml, FSM.transition)
-robotCtonrol = RobotControl()
+robotControl = RobotControl()
 
 #Create a packml thread which runs the state logic
 orders = ExecuteOrder()
