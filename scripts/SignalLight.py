@@ -1,4 +1,3 @@
-import rtde_io as io
 import time
 import random
 from scripts.finite_state_machine import FiniteStateMachine as FSM

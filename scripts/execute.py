@@ -5,8 +5,8 @@ from scripts.modbus.modbus_client import Client
 from scripts.RobotControl import RobotControl
 from scripts.RestMiR import RestMiR
 from scripts.MesOrder import MesOrder
-import logging
 from scripts.finite_state_machine import FiniteStateMachine as FSM
+import logging
 import json
 
 BLUE, RED, YELLOW, ERROR = (i for i in range(4))
@@ -129,26 +129,25 @@ class ExecuteOrder():
         #self.modbus_client.close() # we connect when class object is created
 
     def pack_orders(self):
-        #while self.mir.read_register(6) != 1:
-        #    logging.info("Wait for MIR")
-
+        while self.mir.read_register(6) != 1:
+            logging.info("Wait for MIR")
         # START PACKING
-        self.robot.loadMIR()
-        self.robot.unloadMIR()
+        self.robot.loadUnloadMIR()
         # DONE PACKING
-
-        #self.mir.write_register(6, 0)  # MIR can go
+        self.mir.write_register(6, 0)  # MIR can go
         logging.info("MIR departures")
-        # change state to complete ??
-        # stateMachine.change_state('SC', 'Execute', 'Completing')
-
 
     def main_thread_loop(self):
         while True:
+            time.sleep(0.1)
+            if self.robot.isEmergencyStopped() and self.stateMachine.state != 'Aborted':
+                self.stateMachine.change_state('Abort', self.stateMachine.state, 'Aborting')
             execute_state = self.stateMachine.state
             print("[State] : ", self.stateMachine.state)
             if execute_state == 'Starting':
                 self.stateMachine.change_state('SC', 'Starting', 'Execute')
+            if execute_state == 'Idle':
+                pass
             elif execute_state == 'Execute':
                 if not self.order_prepared:
                     self.prepare_orders()
@@ -163,22 +162,17 @@ class ExecuteOrder():
                 self.robot.openGripper()
                 self.stateMachine.change_state('SC', 'Resetting', 'Idle')
             elif execute_state == 'Aborting':
-                # Do some aborting stuff, like stopping the robot and change to aborted
-                self.robot.stopRobot()
-                self.robot.openGripper()
                 self.stateMachine.change_state('SC', 'Aborting', 'Aborted')
             elif execute_state == 'Aborted':
-                self.stateMachine.change_state('SC', 'Aborting', 'Aborted')
+                if not self.robot.isEmergencyStopped():
+                    self.stateMachine.change_state('Clear', 'Aborted', 'Clearing')
             elif execute_state == 'Clearing':
-                # Stop MES and do some clearing after an abort
                 self.stateMachine.change_state('SC', 'Clearing', 'Stopped')
             elif execute_state == 'Stopping':
-                # Stop MES
                 self.stateMachine.change_state('SC', 'Stopping', 'Stopped')
             elif execute_state == 'Holding':
                 self.robot.moveRobot("Reset")
                 self.robot.openGripper()
-                self.robot.stopRobot()
                 self.stateMachine.change_state('SC', 'Holding', 'Held')
             elif execute_state == 'Unholding':
                 self.refill_blue = 18
