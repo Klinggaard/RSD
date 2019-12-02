@@ -40,15 +40,9 @@ class RobotControl:
         else:
             RobotControl.__instance = self
 
-    def moveRobot(self, pose, vel, acc):
-        if self.rtde_c.isConnected():
-            self.velocity = vel
-            self.acceleration = acc
-            self.rtde_c.moveJ(pose, self.velocity, self.acceleration)
-        else:
-            logging.error("[RobotControl] Cannot move robot, rtde is not connected")
-
     def moveRobotPath(self, graspConfigList):
+        if self.isEmergencyStopped():
+            return False
         path = []
         stats = None
         point = None
@@ -61,7 +55,7 @@ class RobotControl:
         path[0][8] = 0
         path[len(graspConfigList)-1][8] = 0
 
-        self.rtde_c.moveJ(path)
+        return self.rtde_c.moveJ(path)
 
     def lights(self, l1=False, l2=False, l3=False):
         try:
@@ -74,10 +68,9 @@ class RobotControl:
     def readInputBits(self):
         return self.rtde_r.getActualDigitalInputBits()
 
-    def moveRobot(self, pose):
-        self.rtde_c.moveJ(pose, self.velocity, self.acceleration)
-
     def moveRobot(self, graspConfigString):
+        if self.isEmergencyStopped():
+            return False
         pose = self.datastore[str(graspConfigString)]["q"]
         self.rtde_c.moveJ(pose, self.velocity, self.acceleration)
 
@@ -215,10 +208,14 @@ class RobotControl:
         self.openGripper()
 
     def closeGripper(self):
-        self.rtde_i.setStandardDigitalOut(0, False)
+        if self.isEmergencyStopped():
+            return False
+        return self.rtde_i.setStandardDigitalOut(0, False)
 
     def openGripper(self):
-        self.rtde_i.setStandardDigitalOut(0, True)
+        if self.isEmergencyStopped():
+            return False
+        return self.rtde_i.setStandardDigitalOut(0, True)
 
     def getQ(self):
         return self.rtde_r.getActualQ()

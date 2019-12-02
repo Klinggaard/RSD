@@ -1,18 +1,10 @@
-from scripts.MesOrder import MesOrder
-import requests
-import json
-import time
+
 from scripts.RobotControl import RobotControl
-from scripts.finite_state_machine import FiniteStateMachine as FSM
-#mes = MesOrder()
-#mes.get_put_order()
 
 #
 robot = RobotControl()
+robot.moveRobot("Reset")
 
-while True:
-    print(robot.isEmergencyStopped())
-    time.sleep(0.1)
 
 # while True:
 #     robot.takeBoxesFromFeeder()

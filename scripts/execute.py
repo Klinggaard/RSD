@@ -108,6 +108,12 @@ class ExecuteOrder():
                     self.stateMachine.change_state('Hold', 'Execute', 'Holding')
                     logging.info("[MainThread] Fill in blue blocks container")
 
+            if self.stateMachine.state != "Execute":
+                break
+            if self.robot.isEmergencyStopped():
+                self.stateMachine.change_state('Abort', self.stateMachine.state, 'Aborting')
+                return False
+
             logging.info("Sub-order completed")
             self.order_counter += 1
             self.db_orders.delete_order(do_order)
@@ -145,8 +151,6 @@ class ExecuteOrder():
             #Cleared: RT 4, SM = 1
 
             time.sleep(1)
-            print("SafetyMode" + str(self.robot.getSafetyMode()))
-            print("RunTimeState" + str(self.robot.getRuntimeState()))
             if self.robot.isEmergencyStopped() and self.stateMachine.state != 'Aborted':
                 self.stateMachine.change_state('Abort', self.stateMachine.state, 'Aborting')
             execute_state = self.stateMachine.state
@@ -156,7 +160,9 @@ class ExecuteOrder():
             if execute_state == 'Idle':
                 pass
             elif execute_state == 'Execute':
-                if not self.order_prepared:
+                if self.robot.isEmergencyStopped():
+                    self.stateMachine.change_state('Abort', self.stateMachine.state, 'Aborting')
+                elif not self.order_prepared:
                     self.prepare_orders()
                 else:
                     self.stateMachine.change_state('Suspend', 'Execute', 'Suspending')
@@ -167,6 +173,8 @@ class ExecuteOrder():
             elif execute_state == 'Resetting':
                 self.robot.moveRobot("Reset")  # to discuss if we want to do it here or after trigger
                 self.robot.openGripper()
+                if self.robot.isEmergencyStopped():
+                    self.stateMachine.change_state('Abort', self.stateMachine.state, 'Aborting')
                 self.stateMachine.change_state('SC', 'Resetting', 'Idle')
             elif execute_state == 'Aborting':
                 self.stateMachine.change_state('SC', 'Aborting', 'Aborted')
