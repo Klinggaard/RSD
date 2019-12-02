@@ -139,7 +139,14 @@ class ExecuteOrder():
 
     def main_thread_loop(self):
         while True:
-            time.sleep(0.1)
+
+            #Running: RT = 2, SM = 1
+            #Emergncy: RT = 4, SM = 7
+            #Cleared: RT 4, SM = 1
+
+            time.sleep(1)
+            print("SafetyMode" + str(self.robot.getSafetyMode()))
+            print("RunTimeState" + str(self.robot.getRuntimeState()))
             if self.robot.isEmergencyStopped() and self.stateMachine.state != 'Aborted':
                 self.stateMachine.change_state('Abort', self.stateMachine.state, 'Aborting')
             execute_state = self.stateMachine.state
@@ -167,7 +174,11 @@ class ExecuteOrder():
                 if not self.robot.isEmergencyStopped():
                     self.stateMachine.change_state('Clear', 'Aborted', 'Clearing')
             elif execute_state == 'Clearing':
-                self.stateMachine.change_state('SC', 'Clearing', 'Stopped')
+                if self.robot.getRuntimeState() == 4 or self.robot.getRuntimeState() == 1:
+                    self.robot.reInitializeRTDE()
+                    self.robot.reconnect()
+                if self.robot.getRuntimeState() == 2:
+                    self.stateMachine.change_state('SC', 'Clearing', 'Stopped')
             elif execute_state == 'Stopping':
                 self.stateMachine.change_state('SC', 'Stopping', 'Stopped')
             elif execute_state == 'Holding':

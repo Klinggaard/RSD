@@ -136,6 +136,9 @@ class RobotControl:
     def getRuntimeState(self):
         return self.rtde_r.getRuntimeState()
 
+    def getSafetyMode(self):
+        return self.rtde_r.getSafetyMode()
+
     def reconnect(self):
         while not self.rtde_r.isConnected():
             self.rtde_r.reconnect()
@@ -143,12 +146,20 @@ class RobotControl:
             self.rtde_c.reconnect()
 
     def isEmergencyStopped(self):
-        if self.rtde_r.getActualRobotVoltage() < 10:
+        if self.rtde_r.getSafetyMode() == 7:
             return True
         return False
 
-    def reuploadScript(self):
-        pass
+    def reInitializeRTDE(self):
+        self.rtde_c = None
+        self.rtde_r = None
+        self.rtde_i = None
+        try:
+            self.rtde_c = rtde_control.RTDEControlInterface("192.168.0.99")
+            self.rtde_r = rtde_receive.RTDEReceiveInterface("192.168.0.99")
+            self.rtde_i = rtde_io.RTDEIOInterface("192.168.0.99")
+        except RuntimeError:
+            logging.error("[RobotControl] Cannot connect to Universal robot")
 
     def loadUnloadMIR(self):
         drop0 = ["Load0", "Load1", "Load2", "LoadMir", "MirDropZonePre0", "MirDropZone0"]
