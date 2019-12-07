@@ -43,7 +43,7 @@ class MesControl(Screen):
         self.state_machine.change_state('Reset', self.state_machine.state, 'Resetting')
 
     def change_state_stopping(self, instance):
-        self.state_machine.change_state('Stop', '*', 'Stopping')
+        self.state_machine.change_state('Stop', self.state_machine.state, 'Stopping')
 
     def change_state_clearing(self, instance):
         self.state_machine.change_state('Clear', 'Aborted', 'Clearing')
