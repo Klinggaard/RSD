@@ -1,0 +1,12 @@
+[Unit]
+Description=RSD Modbus server
+After=multi-user.target
+
+[Service]
+Type=idle
+ExecStart=/usr/bin/python3 /home/pi/RSD/scripts/modbus/modbus_server.py
+WorkingDirectory=/home/pi/RSD/scripts/modbus
+User=pi
+
+[Install]
+WantedBy=multi-user.target

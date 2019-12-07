@@ -1,0 +1,50 @@
+#:import FadeTransition kivy.uix.screenmanager.FadeTransition
+<Menu>:
+    manager: screen_manager
+    orientation: "vertical"
+    ActionBar:
+        size_hint_y: 0.1
+        ActionView:
+            ActionPrevious:
+            ActionButton:
+                text: "Control"
+                on_release:
+                    root.manager.current = "control"
+                    root.manager.transition.direction = 'up'
+
+            ActionButton:
+                text: "Orders"
+                on_release:
+                    root.manager.current = "orders"
+                    root.manager.transition.direction = 'up'
+
+            ActionButton:
+                text:"OEE"
+                on_release:
+                    root.manager.current = "OEE"
+                    root.manager.transition.direction = 'up'
+    Manager:
+        id: screen_manager
+
+<MesControl>:
+
+<MesOrderScreen>:
+
+<OEEScreen>:
+
+<Manager>:
+    controlScreen: controlScreen
+    oeeScreen: oeeScreen
+    orderScreen: orderScreen
+
+    MesControl:
+        id: controlScreen
+        name: 'control'
+
+    OEEScreen:
+        id: oeeScreen
+        name: 'OEE'
+
+    MesOrderScreen:
+        id: orderScreen
+        name: 'orders'
