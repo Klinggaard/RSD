@@ -27,7 +27,7 @@ class RobotControl:
         except RuntimeError:
             logging.error("[RobotControl] Cannot connect to Universal robot")
 
-        self.velocity = 0.5
+        self.velocity = 0.2
         self.acceleration = 1.2
         self.datastore = ""
         projectPath = rootpath.detect()
@@ -165,16 +165,17 @@ class RobotControl:
         self.takeBoxesFromFeeder()
         self.moveRobotPath(drop1)
         self.openGripper()
+        self.moveRobot("MirDropZonePre1")
 
         # Push the boxes together
         self.moveRobot("PushPreUp")
         self.moveRobot("PushPre")
+        self.velocity = 0.3
         self.moveRobot("Push")
         self.moveRobot("PushUp")
 
         # grasp box on mir
         self.moveRobot("MirBoxPreGrasp0")
-        self.velocity = 0.3
         self.moveRobot("MirBoxGrasp0")
         self.closeGripper()
         self.moveRobot("MirBoxPreGrasp0")
@@ -188,7 +189,7 @@ class RobotControl:
         self.openGripper()
 
         # move robot to mir
-        path = ["Load0", "Load1", "Load2", "LoadMir", "PushPreUp"]
+        path = ["Load0", "Load1", "Load2", "LoadMir"]
         self.moveRobotPath(path)
 
         # grasp box on mir
@@ -202,6 +203,7 @@ class RobotControl:
         self.velocity = 0.5
         self.moveRobotPath(reversePath + ["PostFeeder"])
         self.putBoxesInFeeder()
+
 
     def dumpBrick(self):
         self.moveRobot("Dump")

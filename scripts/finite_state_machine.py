@@ -69,17 +69,17 @@ class FiniteStateMachine:
         flag = False
         if trigger == 'Abort':
             self.state = 'Aborting'
-            print('transition from {} to {} was successful.'.format(from_state, to_state))
+            print('[PackML FSM]: Transition from {} to {} was successful.'.format(from_state, to_state))
         elif trigger == 'Stop':
             self.state = 'Stopping'
-            print('transition from {} to {} was successful.'.format(from_state, to_state))
+            print('[PackML FSM]: Transition from {} to {} was successful.'.format(from_state, to_state))
         elif self.state == from_state:
             for row in self.transition:
                 if np.array_equal(row, arr):
                     self.state = to_state
                     flag = True
-                    print('transition from {} to {} is successful.'.format(from_state, to_state))
+                    print('[PackML FSM]: Transition from {} to {} is successful.'.format(from_state, to_state))
             if not flag:
-                print('transition from {} to {} failed.'.format(from_state, to_state))
+                print('[PackML FSM]: Transition from {} to {} failed.'.format(from_state, to_state))
         else:
             print('Wrong starting state, transition is impossible')

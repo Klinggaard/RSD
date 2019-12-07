@@ -3,8 +3,17 @@ from scripts.RobotControl import RobotControl
 
 #
 robot = RobotControl()
-robot.moveRobot("Reset")
+#robot.moveRobot("PushUp")
 
+robot.velocity = 0.4
+#robot.moveRobot("MirBoxPreGrasp0")
+#robot.moveRobot("MirBoxGrasp0")
+#robot.closeGripper()
+#robot.moveRobot("MirBoxPreGrasp0")
+#robot.loadUnloadMIR()
+#print(robot.getQ())
+#robot.loadUnloadMIR()
+robot.moveRobot("Reset")
 
 # while True:
 #     robot.takeBoxesFromFeeder()
