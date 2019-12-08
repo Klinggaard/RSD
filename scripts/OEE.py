@@ -1,4 +1,3 @@
-import json
 import time
 import logging
 
@@ -92,7 +91,7 @@ class OEE:
         #print(self.ot, self.ppt, self.dtl)
         self._neot = self._ot - self._sl
         self._fpt = self._neot - self._ql
-        pass
+
 
     def update(self, sys_up, task=None, update_order=False, order_status=None):
         self._update(sys_up=sys_up, t=time.time()/60)
@@ -113,20 +112,22 @@ class OEE:
                 self.t_order += 1
 
 
-        ret = json.dumps({
+        ret = {
             'Availability': round(self._availability(), 3),
             'Performance':  round(self._performance(), 3),
             'Quality':      round(self._quality(), 3),
             'OEE':          round(self._oee(), 3),
-            'Task':         self._task
-        })
+            'Total Orders': self._availability(),
+            'Good Orders': self._performance(),
+            'Bad Orders': self._quality()
+        }
 
         # resetting shift
         if (self._timestamps[-1] - self._timestamps[0])/60 >= self._pot:
             self.reset_shift()
             log.info("[OEE] Resetting shift")
-
-        return ret
+            return ret
+        return None
 
     def start(self, task):
         assert task, "No task assigned - Task must be assigned when stating"
@@ -140,21 +141,31 @@ class OEE:
 
         return self._started
 
+    def get_availability(self):
+        return round(self._availability(), 3)
+
+    def get_performance(self):
+        return round(self._performance(), 3)
+
+    def get_quality(self):
+        return round(self._quality(), 3)
+
     def get_oee(self):
-        return json.dumps({
-            'Availability': round(self._availability(), 3),
-            'Performance':  round(self._performance(), 3),
-            'Quality':      round(self._quality(), 3),
-            'OEE':          round(self._oee(), 3),
-            'Task':         self._task
-        })
+        return round(self._oee(), 3)
 
     def get_metrics(self):
-        return json.dumps({
+        return {
             'Total Orders': self._availability(),
             'Good Orders':  self._performance(),
-            'Bad Orders': self._quality(),
-        })
+            'Bad Orders': self._quality()
+        }
+
+    def get_time(self):
+        return {
+            "Up-time": self._ot,
+            "Down-time": self._dtl,
+            "Total time": self._ot + self._dtl
+        }
 
     def reset_shift(self):
 
@@ -179,7 +190,7 @@ class OEE:
         self.start(self._task)
 
 
-'''
+
 oee = OEE(start=True, task="testing")
 c = 0
 n = ""
@@ -198,6 +209,4 @@ while True:
         print(oee.update(sys_up=True,update_order=True, order_status=OEE.REJECTED))
     elif c % 7 == 0:
         print("\naccept")
-        print(oee.update(sys_up=True, update_order=True, order_status=OEE.COMPLETED))
-
-'''
+        print(oee.update(sys_up=True, update_order=True, order_status=OEE.COMPLETED)[0])
