@@ -9,6 +9,16 @@ log.setLevel(logging.INFO)
 class OEE:
     COMPLETED = 1
     REJECTED = 2
+
+    __instance = None  # INITIAL INSTANCE OF CLASS
+
+    @staticmethod
+    def getInstance(ict=1, pot=24*60, pst=60, start=False, task=None):
+        if OEE.__instance == None:
+            OEE(ict=ict, pot=pot, pst=pst, start=start, task=task)
+        """ Static access method. """
+        return OEE.__instance
+
     def __init__(self, ict=1, pot=24*60, pst=60, start=False, task=None):
         '''
         :param ict: Ideal Cycle Time (m)
@@ -42,6 +52,12 @@ class OEE:
 
         if start:
             self.start(self._task)
+
+        """ Virtually private constructor. """
+        if OEE.__instance != None:
+            raise Exception("This class is a singleton!")
+        else:
+            OEE.__instance = self
 
     def _availability(self):
         assert self._started is True, "OEE module not started"
@@ -163,12 +179,10 @@ class OEE:
         self.start(self._task)
 
 
-
-
-
 '''
 oee = OEE(start=True, task="testing")
 c = 0
+n = ""
 while True:
     c += 1
     #print(c%21)
@@ -176,6 +190,8 @@ while True:
     if c % 28 == 0:
         print("\nsys down")
         print(oee.update(sys_up=False))
+        n = OEE.getInstance()
+        print(n.get_oee())
 
     elif c % 21 == 0.0:
         print("\nreject")
@@ -184,9 +200,4 @@ while True:
         print("\naccept")
         print(oee.update(sys_up=True, update_order=True, order_status=OEE.COMPLETED))
 
-
-
-
 '''
-
-
