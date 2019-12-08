@@ -106,10 +106,10 @@ class OEE:
             assert order_status == self.REJECTED or order_status == self.COMPLETED, \
                 "Unknown order_status - Use REJECTED or COMPLETED"
             if order_status == self.COMPLETED:
-                self.t_order += 1
-                self.g_order += 1
+                self.t_order += 4
+                self.g_order += 4
             elif order_status == self.REJECTED:
-                self.t_order += 1
+                self.t_order += 4
 
 
         ret = {
@@ -190,7 +190,7 @@ class OEE:
         self.start(self._task)
 
 
-
+'''
 oee = OEE(start=True, task="testing")
 c = 0
 n = ""
@@ -206,7 +206,8 @@ while True:
 
     elif c % 21 == 0.0:
         print("\nreject")
-        print(oee.update(sys_up=True,update_order=True, order_status=OEE.REJECTED))
+        print(oee.update(sys_up=True, update_order=True, order_status=OEE.REJECTED))
     elif c % 7 == 0:
         print("\naccept")
-        print(oee.update(sys_up=True, update_order=True, order_status=OEE.COMPLETED)[0])
+        print(oee.update(sys_up=True, update_order=True, order_status=OEE.COMPLETED))
+'''
