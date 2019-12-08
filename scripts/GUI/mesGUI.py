@@ -19,7 +19,7 @@ import json
 #Set window size
 Window.size = (1853, 1016)
 #Set to true for fullscreen
-Window.fullscreen = True
+Window.fullscreen = False
 Window.clearcolor = (1,1,1,1)
 Config.set('input', 'mouse', 'mouse,multitouch_on_demand')
 
