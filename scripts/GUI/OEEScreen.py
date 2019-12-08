@@ -1,3 +1,5 @@
+import json
+
 from kivy.clock import Clock
 from kivy.graphics.context_instructions import Color
 from kivy.graphics.vertex_instructions import Rectangle
@@ -11,6 +13,8 @@ from kivy.core.text import Label as CoreLabel
 from kivy.lang.builder import Builder
 from kivy.graphics import Color, Ellipse, Rectangle
 from kivy.clock import Clock
+
+from scripts.OEE import OEE
 
 
 class CircularProgressBar(ProgressBar):
@@ -86,25 +90,39 @@ class CircularProgressBar(ProgressBar):
 
 class OEEScreen(Screen):
 
-
     def __init__(self, **kwargs):
         # make sure we aren't overriding any important functionality
         super(OEEScreen, self).__init__(**kwargs)
 
-        #self.progress = CircularProgressBar(size_hint=(None,None), height=400, width=400, max=100, pos=(400,0))
-        #self.add_widget(self.progress)
+        #Get oee instance
+        self.oeeInstance = OEE.getInstance()
+
         self.availability = CircularProgressBar(prefix="Availability\n", size_hint=(None,None), height=400, width=400, max=100, pos=(50,50))
         self.performance = CircularProgressBar(prefix="Performance\n",size_hint=(None,None), height=400, width=400, max=100, pos=(500,50))
-        self.quality = CircularProgressBar(prefix="Quality\n", size_hint=(None,None), height=400, width=400, max=100, pos=(50,500))
-        self.oee = CircularProgressBar(prefix="OEE\n", size_hint=(None,None), height=400, width=400, max=100, pos=(500,500))
+        self.quality = CircularProgressBar(prefix="Quality\n", size_hint=(None,None), height=400, width=400, max=100, pos=(50,475))
+        self.oee = CircularProgressBar(prefix="OEE\n", size_hint=(None,None), height=400, width=400, max=100, pos=(500,475))
         self.add_widget(self.availability)
         self.add_widget(self.performance)
         self.add_widget(self.quality)
         self.add_widget(self.oee)
 
+        font_size = 28
+        btn_total = Button(text='Total Orders', font_size=font_size, halign='left')
+        btn_good = Button(text='Good Orders', font_size=font_size, halign='left')
+        btn_bad = Button(text='Bad Orders', font_size=font_size, halign='left')
+        btn_uptime = Button(text='Uptime', font_size=font_size, halign='left')
+        btn_downtime = Button(text='Downtime', font_size=font_size, halign='left')
+        btn_totaltime = Button(text='Total Time', font_size=font_size, halign='left')
+        oeeText = BoxLayout(orientation='vertical', size_hint=(0.3, 0.8), spacing=30,
+                                pos_hint={'right': 0.9, 'top': 0.9}, padding=[10, 10, 10, 10])
+        oeeText.add_widget(btn_total)
+        oeeText.add_widget(btn_good)
+        oeeText.add_widget(btn_bad)
+        oeeText.add_widget(btn_uptime)
+        oeeText.add_widget(btn_downtime)
+        oeeText.add_widget(btn_totaltime)
+        self.add_widget(oeeText)
         self.widgets = [self.availability, self.performance, self.quality, self.oee]
-
-
 
         #Bind canvas to widget and set screen color
         self.bind(size=self._update_rect, pos=self._update_rect)
@@ -117,11 +135,11 @@ class OEEScreen(Screen):
 
     # Simple animation to show the circular progress bar in action
     def animate(self, dt):
-        for w in self.widgets:
-            if w.value < 100:
-                w.set_value(w.value + 1)
-            else:
-                w.set_value(0)
+        self.availability.set_value(self.oeeInstance.get_availability())
+        self.performance.set_value(self.oeeInstance.get_performance())
+        self.quality.set_value(self.oeeInstance.get_quality())
+        self.oee.set_value(self.oeeInstance.get_oee())
+
 
     def _update_rect(self, instance, value):
         self.rect.pos = instance.pos

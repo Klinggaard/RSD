@@ -1,10 +1,15 @@
 import threading
 
 from scripts.GUI.mesGUI import MainApp
+from scripts.OEE import OEE
 from scripts.execute import ExecuteOrder
 from scripts.finite_state_machine import FiniteStateMachine as FSM
 from scripts.SignalLight import LightTower
 from scripts.RobotControl import RobotControl
+
+#Instanciate OEE object
+oee_t = OEE(start=True, task="main")
+oee_t.update(sys_up=True)
 
 #Instanciate the state machine and Robot
 stateMachine = FSM(FSM.states_packml, FSM.transition)

@@ -12,6 +12,8 @@ from scripts.GUI.OEEScreen import OEEScreen
 from scripts.GUI.MesOrderScreen import MesOrderScreen
 from kivy.config import Config
 from kivy.uix.screenmanager import ScreenManager, Screen
+
+from scripts.OEE import OEE
 from scripts.finite_state_machine import FiniteStateMachine as FSM
 import threading
 import json
@@ -42,5 +44,6 @@ class MainApp(App):
 
 
 if __name__ == '__main__':
+    oee = OEE(start=True, task="Starting")
     stateMachine = FSM(FSM.states_packml, FSM.transition)
     MainApp().run()
