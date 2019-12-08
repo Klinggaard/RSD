@@ -17,12 +17,8 @@ from kivy.uix.textinput import TextInput
 from scripts.GUI.table import Table
 import logging
 from scripts.MesOrder import MesOrder
-
 import requests
 import json
-
-
-
 
 class MesOrderScreen(Screen):
     def __init__(self, **kwargs):
@@ -61,7 +57,6 @@ class MesOrderScreen(Screen):
         self.my_table.number_panel.visible = True
         self.my_table.scroll_view.bar_width = 10
         self.my_table.scroll_view.scroll_type = ['bars']
-        self.my_table.scroll_view
 
         #Refresh button setup#
         btn_refresh = Button(text='REFRESH', background_color=[0, 0.8, 0, 1], background_normal=' ', font_size=8, on_press=self.refresh_callback)

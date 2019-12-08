@@ -4,6 +4,7 @@ from scripts.RestMiR import RestMiR
 from scripts.MesOrder import MesOrder
 from scripts.finite_state_machine import FiniteStateMachine as FSM
 import logging
+import time
 
 
 BLUE, RED, YELLOW, ERROR = (i for i in range(4))
@@ -182,6 +183,7 @@ class ExecuteOrder():
 
     def main_thread_loop(self):
         while True:
+            time.sleep(0.5)
             if self.robot.isEmergencyStopped() and self.stateMachine.state != 'Aborted':
                 self.stateMachine.change_state('Abort', self.stateMachine.state, 'Aborting')
             execute_state = self.stateMachine.state
@@ -196,9 +198,7 @@ class ExecuteOrder():
                 pass
 
             elif execute_state == 'Execute':
-                if self.robot.isEmergencyStopped():
-                    self.stateMachine.change_state('Abort', self.stateMachine.state, 'Aborting')
-                elif self.full_orders <= 1000:
+                if self.full_orders <= 1000:
                     if not self.order_prepared:
                         self.prepare_orders()
                     if self.waiting_for_mir:
@@ -216,26 +216,17 @@ class ExecuteOrder():
                     self.stateMachine.change_state('SC', 'Execute', 'Completing')
 
             elif execute_state == 'Completing':
-                if self.robot.isEmergencyStopped():
-                    self.stateMachine.change_state('Abort', self.stateMachine.state, 'Aborting')
-                else:
-                    self.stateMachine.change_state('SC', 'Completing', 'Complete')
+                self.stateMachine.change_state('SC', 'Completing', 'Complete')
 
             elif execute_state == 'Complete':
-                if self.robot.isEmergencyStopped():
-                    self.stateMachine.change_state('Abort', self.stateMachine.state, 'Aborting')
-                else:
-                    self.stateMachine.change_state('Reset', 'Complete', 'Resetting')
+                self.stateMachine.change_state('Reset', 'Complete', 'Resetting')
 
             elif execute_state == 'Resetting':
-                if self.robot.isEmergencyStopped():
-                    self.stateMachine.change_state('Abort', self.stateMachine.state, 'Aborting')
-                else:
-                    self.robot.moveRobot("Reset")  # to discuss if we want to do it here or after trigger
-                    self.robot.openGripper()
-                    self.stateMachine.change_state('SC', 'Resetting', 'Idle')
-                    if self.order_prepared and not self.waiting_for_mir:
-                        self.waiting_for_mir = True
+                self.robot.moveRobot("Reset")  # to discuss if we want to do it here or after trigger
+                self.robot.openGripper()
+                self.stateMachine.change_state('SC', 'Resetting', 'Idle')
+                if self.order_prepared and not self.waiting_for_mir:
+                    self.waiting_for_mir = True
 
             elif execute_state == 'Aborting':
                 self.stateMachine.change_state('SC', 'Aborting', 'Aborted')
@@ -255,45 +246,29 @@ class ExecuteOrder():
                 self.stateMachine.change_state('SC', 'Stopping', 'Stopped')
 
             elif execute_state == 'Holding':
-                if self.robot.isEmergencyStopped():
-                    self.stateMachine.change_state('Abort', self.stateMachine.state, 'Aborting')
-                else:
-                    self.robot.moveRobot("Reset")
-                    self.robot.openGripper()
-                    self.stateMachine.change_state('SC', 'Holding', 'Held')
+                self.robot.moveRobot("Reset")
+                self.robot.openGripper()
+                self.stateMachine.change_state('SC', 'Holding', 'Held')
 
             elif execute_state == 'Unholding':
-                if self.robot.isEmergencyStopped():
-                    self.stateMachine.change_state('Abort', self.stateMachine.state, 'Aborting')
-                else:
-                    self.refill_blue = 18
-                    self.refill_red = 18
-                    self.refill_yellow = 18
-                    self.stateMachine.change_state('SC', 'Unholding', 'Execute')
+                self.refill_blue = 18
+                self.refill_red = 18
+                self.refill_yellow = 18
+                self.stateMachine.change_state('SC', 'Unholding', 'Execute')
 
             elif execute_state == 'Suspending':
-                if self.robot.isEmergencyStopped():
-                    self.stateMachine.change_state('Abort', self.stateMachine.state, 'Aborting')
-                else:
-                    self.stateMachine.change_state('SC', 'Suspending', 'Suspended')
+                self.stateMachine.change_state('SC', 'Suspending', 'Suspended')
 
             elif execute_state == 'Suspended':
-                if self.robot.isEmergencyStopped():
-                    self.stateMachine.change_state('Abort', self.stateMachine.state, 'Aborting')
-                else:
-                    if self.mir.read_register(6) != 1:
-                        logging.info("[MainThread] Waiting for MIR")
-                        print("[State] : ", self.stateMachine.state)
-                    if self.mir.read_register(6) == 1:
-                        logging.info("MIR arrived")
-                        self.stateMachine.change_state('Unsuspend', 'Suspended', 'Unsuspending')
+                if self.mir.read_register(6) != 1:
+                    logging.info("[MainThread] Waiting for MIR")
+                    print("[State] : ", self.stateMachine.state)
+                if self.mir.read_register(6) == 1:
+                    logging.info("MIR arrived")
+                    self.stateMachine.change_state('Unsuspend', 'Suspended', 'Unsuspending')
 
             elif execute_state == 'Unsuspending':
-                if self.robot.isEmergencyStopped():
-                    self.stateMachine.change_state('Abort', self.stateMachine.state, 'Aborting')
-                else:
-                    self.stateMachine.change_state('SC', 'Unsuspending', 'Execute')
+                self.stateMachine.change_state('SC', 'Unsuspending', 'Execute')
 
             elif execute_state == 'Held':
-                if self.robot.isEmergencyStopped():
-                    self.stateMachine.change_state('Abort', self.stateMachine.state, 'Aborting')
+                pass

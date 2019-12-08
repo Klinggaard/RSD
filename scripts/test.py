@@ -1,3 +1,4 @@
+import time
 
 from scripts.RobotControl import RobotControl
 
@@ -13,13 +14,10 @@ robot.velocity = 0.4
 #robot.loadUnloadMIR()
 #print(robot.getQ())
 #robot.loadUnloadMIR()
-robot.moveRobot("Reset")
+#robot.graspBlue()
 
-# while True:
-#     robot.takeBoxesFromFeeder()
-#     robot.moveRobot("TEST")
-#     robot.putBoxesInFeeder()
-#     time.sleep(0.5)
+robot.graspYellow()
+
 
 #robot.moveRobot("OverCameraPose")
 
