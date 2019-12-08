@@ -112,10 +112,11 @@ class OEE:
             assert order_status == self.REJECTED or order_status == self.COMPLETED, \
                 "Unknown order_status - Use REJECTED or COMPLETED"
             if order_status == self.COMPLETED:
-                self.t_order += 1
-                self.g_order += 1
+                self.t_order += 4
+                self.g_order += 4
             elif order_status == self.REJECTED:
-                self.t_order += 1
+                self.t_order += 4
+
 
 
         ret = {
