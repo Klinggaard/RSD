@@ -1,3 +1,4 @@
+from scripts.OEE import OEE
 from scripts.modbus.modbus_client import Client
 from scripts.RobotControl import RobotControl
 from scripts.RestMiR import RestMiR
@@ -41,8 +42,11 @@ class ExecuteOrder():
         self.do_order = []
         self.full_orders = 0
 
+        self.oeeInstance = OEE.getInstance()
+
     def prepare_orders(self):
         while self.order_counter < 4:
+
             self.order_prepared = False
             if not self.current_order:
                 self.do_order = self.db_orders.get_put_order()
@@ -50,8 +54,13 @@ class ExecuteOrder():
                 self.reds = self.do_order["red"]
                 self.blues = self.do_order["blue"]
                 self.yellows = self.do_order["yellow"]
-
+            #TODO make into function to back a specific color
+            #TODO Change the last postion of the place boxes function
+            #TODO counter for the wrong bricks, to go into holding, to make sure the bricks are not stuck
             while self.yellows > 0:
+                # Update OEE
+                self.oeeInstance.update(sys_up=False, task=self.stateMachine.state)
+
                 if self.stateMachine.state != "Execute":
                     break
                 if self.refill_yellow > 0:
@@ -77,6 +86,9 @@ class ExecuteOrder():
                     logging.info("[MainThread] Fill in yellow blocks container")
 
             while self.reds > 0:
+                # Update OEE
+                self.oeeInstance.update(sys_up=False, task=self.stateMachine.state)
+
                 if self.stateMachine.state != "Execute":
                     break
                 if self.refill_red > 0:
@@ -103,6 +115,9 @@ class ExecuteOrder():
                     logging.info("[MainThread] Fill in red blocks container")
 
             while self.blues > 0:
+                # Update OEE
+                self.oeeInstance.update(sys_up=False, task=self.stateMachine.state)
+
                 if self.stateMachine.state != "Execute":
                     break
                 if self.refill_blue > 0:
@@ -183,7 +198,14 @@ class ExecuteOrder():
 
     def main_thread_loop(self):
         while True:
-            time.sleep(0.5)
+            time.sleep(0.1)
+            self.oeeInstance.update(sys_up=True, task=self.stateMachine.state)
+
+            if self.stateMachine.state == 'Execute':
+                self.oeeInstance.update(sys_up=True, task=self.stateMachine.state)
+            else:
+                self.oeeInstance.update(sys_up=False, task=self.stateMachine.state)
+
             if self.robot.isEmergencyStopped() and self.stateMachine.state != 'Aborted':
                 self.stateMachine.change_state('Abort', self.stateMachine.state, 'Aborting')
             execute_state = self.stateMachine.state

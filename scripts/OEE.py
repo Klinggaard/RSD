@@ -65,13 +65,19 @@ class OEE:
 
     def _performance(self):
         assert self._started is True, "OEE module not started"
-        self.performance = (self._ict * self.t_order) / self._ot
+        if(self._ot != 0):
+            self.performance = (self._ict * self.t_order) / self._ot
+        else:
+            return 0
         # log.info("%f %f %f",self.ict,self.t_order,self.ot)
         return self.performance
 
     def _quality(self):
         assert self._started is True, "OEE module not started"
-        self.quality = self.g_order/self.t_order
+        if(self.t_order != 0):
+            self.quality = self.g_order/self.t_order
+        else:
+            return 0
         return self.quality
 
     def _oee(self):
@@ -110,6 +116,7 @@ class OEE:
                 self.g_order += 4
             elif order_status == self.REJECTED:
                 self.t_order += 4
+
 
 
         ret = {
