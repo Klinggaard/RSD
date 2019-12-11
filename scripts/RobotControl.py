@@ -76,7 +76,7 @@ class RobotControl:
         pose = self.datastore[str(graspConfigString)]["q"]
         self.rtde_c.moveJ(pose, self.velocity, self.acceleration)
 
-        while not self.destinationReached(graspConfigString):
+        while not self.destinationReached(graspConfigString) and not self.isEmergencyStopped():
             print("SafetyMode: " + str(self.getSafetyMode()))
             if self.isEmergencyStopped(): #Check if e stop has been activated in the mean time
                 logging.info("[RobotControl] Emegency stop activated, not trying to move")
