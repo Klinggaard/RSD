@@ -108,19 +108,25 @@ class OEEScreen(Screen):
         self.add_widget(self.oee)
 
         font_size = 28
-        btn_total = Button(text='Total Orders', font_size=font_size, halign='left')
-        btn_good = Button(text='Good Orders', font_size=font_size, halign='left')
-        btn_bad = Button(text='Bad Orders', font_size=font_size, halign='left')
-        btn_uptime = Button(text='Uptime', font_size=font_size, halign='left')
-        btn_downtime = Button(text='Downtime', font_size=font_size, halign='left')
-        btn_totaltime = Button(text='Total Time', font_size=font_size, halign='left')
-        oeeText = BoxLayout(orientation='vertical', size_hint=(0.3, 0.8), spacing=30, pos_hint={'right': 0.9, 'top': 0.9}, padding=[10, 10, 10, 10])
-        oeeText.add_widget(btn_total)
-        oeeText.add_widget(btn_good)
-        oeeText.add_widget(btn_bad)
-        oeeText.add_widget(btn_uptime)
-        oeeText.add_widget(btn_downtime)
-        oeeText.add_widget(btn_totaltime)
+        self.btn_total = Button(text='Total Orders:\n', font_size=font_size, halign='center')
+        self.btn_good = Button(text='Good Orders:\n', font_size=font_size, halign='center')
+        self.btn_bad = Button(text='Bad Orders:\n', font_size=font_size, halign='center')
+        self.btn_uptime = Button(text='Uptime:\n', font_size=font_size, halign='center')
+        self.btn_downtime = Button(text='Downtime:\n', font_size=font_size, halign='center')
+        self.btn_totaltime = Button(text='Total Time:\n', font_size=font_size, halign='center')
+        oeeTextRow1 = BoxLayout(orientation='horizontal', size_hint=(1, 1), spacing=30, pos_hint={'right': 1, 'top': 1})
+        oeeTextRow2 = BoxLayout(orientation='horizontal', size_hint=(1, 1), spacing=30, pos_hint={'right': 1, 'top': 1})
+        oeeTextRow3 = BoxLayout(orientation='horizontal', size_hint=(1, 1), spacing=30, pos_hint={'right': 1, 'top': 1})
+        oeeTextRow1.add_widget(self.btn_total)
+        oeeTextRow1.add_widget(self.btn_good)
+        oeeTextRow2.add_widget(self.btn_bad)
+        oeeTextRow2.add_widget(self.btn_uptime)
+        oeeTextRow3.add_widget(self.btn_downtime)
+        oeeTextRow3.add_widget(self.btn_totaltime)
+        oeeText = BoxLayout(orientation='vertical', size_hint=(0.3, 0.9), spacing=30, pos_hint={'right': 0.9, 'top': 0.95}, padding=[10, 10, 10, 10])
+        oeeText.add_widget(oeeTextRow1)
+        oeeText.add_widget(oeeTextRow2)
+        oeeText.add_widget(oeeTextRow3)
         self.add_widget(oeeText)
 
         #Bind canvas to widget and set screen color
@@ -134,10 +140,21 @@ class OEEScreen(Screen):
 
     # Simple animation to show the circular progress bar in action
     def animate(self, dt):
+        self.oeeInstance.update(sys_up=True)
         self.availability.set_value(self.oeeInstance.get_availability())
         self.performance.set_value(self.oeeInstance.get_performance())
         self.quality.set_value(self.oeeInstance.get_quality())
         self.oee.set_value(self.oeeInstance.get_oee())
+
+        #Update text:
+        metrics = self.oeeInstance.get_metrics()
+        self.btn_total.text ='Total Orders:\n' + str(metrics['Total Orders'])
+        self.btn_good.text = 'Good Orders:\n' + str(metrics['Good Orders'])
+        self.btn_bad.text ='Bad Orders:\n' + str(metrics['Bad Orders'])
+        oeeTime = self.oeeInstance.get_time()
+        self.btn_uptime.text ='Uptime:\n' + str(round(oeeTime["Up-time"],3))
+        self.btn_downtime.text ='Downtime:\n' + str(round(oeeTime["Down-time"],3))
+        self.btn_totaltime.text ='Total Time:\n' + str(round(oeeTime["Total time"],3))
 
 
     def _update_rect(self, instance, value):

@@ -45,5 +45,6 @@ class MainApp(App):
 
 if __name__ == '__main__':
     oee = OEE(start=True, task="Starting")
+    oee.update(sys_up=True)
     stateMachine = FSM(FSM.states_packml, FSM.transition)
     MainApp().run()

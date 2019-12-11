@@ -1,3 +1,5 @@
+import time
+
 import requests
 import json
 
@@ -38,6 +40,15 @@ class MesOrder():
             for x in decoded['orders']:
                 if x['status'] != 'taken':
                     y.append(x['id'])
+            while len(y) == 0:
+                logging.info("No orders available, waiting for new orders")
+                time.sleep(10)
+                response = requests.get(self.url)
+                decoded = json.loads(response.content)  # convert from JSON to dictionary
+                y = []
+                for x in decoded['orders']:
+                    if x['status'] != 'taken':
+                        y.append(x['id'])
             minimal_id = min(y)
             for xx in decoded['orders']:
                 if xx['id'] == minimal_id:

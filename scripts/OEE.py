@@ -162,8 +162,8 @@ class OEE:
 
     def get_metrics(self):
         return {
-            'Total Orders': self._availability(),
-            'Good Orders':  self._performance(),
+            'Total Orders': self.t_order,
+            'Good Orders':  self.g_order,
             'Bad Orders': self._quality()
         }
 

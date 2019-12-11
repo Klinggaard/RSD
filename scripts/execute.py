@@ -46,7 +46,9 @@ class ExecuteOrder():
 
     def prepare_orders(self):
         while self.order_counter < 4:
-
+            if self.robot.isEmergencyStopped():
+                self.stateMachine.change_state('Abort', self.stateMachine.state, 'Aborting')
+                return False
             self.order_prepared = False
             if not self.current_order:
                 self.do_order = self.db_orders.get_put_order()
@@ -60,7 +62,9 @@ class ExecuteOrder():
             while self.yellows > 0:
                 # Update OEE
                 self.oeeInstance.update(sys_up=False, task=self.stateMachine.state)
-
+                if self.robot.isEmergencyStopped():
+                    self.stateMachine.change_state('Abort', self.stateMachine.state, 'Aborting')
+                    return False
                 if self.stateMachine.state != "Execute":
                     break
                 if self.refill_yellow > 0:
@@ -88,6 +92,9 @@ class ExecuteOrder():
             while self.reds > 0:
                 # Update OEE
                 self.oeeInstance.update(sys_up=False, task=self.stateMachine.state)
+                if self.robot.isEmergencyStopped():
+                    self.stateMachine.change_state('Abort', self.stateMachine.state, 'Aborting')
+                    return False
 
                 if self.stateMachine.state != "Execute":
                     break
@@ -117,10 +124,13 @@ class ExecuteOrder():
             while self.blues > 0:
                 # Update OEE
                 self.oeeInstance.update(sys_up=False, task=self.stateMachine.state)
-
+                if self.robot.isEmergencyStopped():
+                    self.stateMachine.change_state('Abort', self.stateMachine.state, 'Aborting')
+                    return False
                 if self.stateMachine.state != "Execute":
                     break
                 if self.refill_blue > 0:
+
                     self.robot.graspBlue()
                     self.modbus_client.connect()
                     verify = self.modbus_client.get_brick_colours()[0]
@@ -208,6 +218,7 @@ class ExecuteOrder():
 
             if self.robot.isEmergencyStopped() and self.stateMachine.state != 'Aborted':
                 self.stateMachine.change_state('Abort', self.stateMachine.state, 'Aborting')
+
             execute_state = self.stateMachine.state
             print("[State] : ", self.stateMachine.state)
 

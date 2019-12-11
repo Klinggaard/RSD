@@ -76,12 +76,20 @@ class RobotControl:
         pose = self.datastore[str(graspConfigString)]["q"]
         self.rtde_c.moveJ(pose, self.velocity, self.acceleration)
 
-        #Try to move the robot again if the destination is not reached and is in safeguard stop or fault stop
-        #Add this if there is problems:
-        # and (self.getSafetyMode() == 5 or self.getSafetyMode()==3)
-        if not self.destinationReached(graspConfigString):
-            logging.info("[RobotControl] Did not reach destination, trying again")
-            self.moveRobot(graspConfigString)
+        while not self.destinationReached(graspConfigString):
+            print("SafetyMode: " + str(self.getSafetyMode()))
+            if self.isEmergencyStopped(): #Check if e stop has been activated in the mean time
+                logging.info("[RobotControl] Emegency stop activated, not trying to move")
+                return False
+
+            if self.getSafetyMode() == 3: #If in protective stop
+                logging.info("[RobotControl] Robot did not reach destination, retrying...")
+                self.reInitializeRTDE()
+                self.reconnect()
+            self.rtde_c.moveJ(pose, self.velocity, self.acceleration)
+
+        return True
+
 
     def destinationReached(self, graspConfigString):
         difference = numpy.subtract(self.datastore[str(graspConfigString)]["q"],  self.getQ())
