@@ -6,6 +6,7 @@ from kivy.graphics.vertex_instructions import Rectangle
 from kivy.lang import Builder
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.button import Button
+from kivy.uix.label import Label
 from kivy.uix.screenmanager import Screen
 from kivy.app import App
 from kivy.uix.progressbar import ProgressBar
@@ -113,8 +114,7 @@ class OEEScreen(Screen):
         btn_uptime = Button(text='Uptime', font_size=font_size, halign='left')
         btn_downtime = Button(text='Downtime', font_size=font_size, halign='left')
         btn_totaltime = Button(text='Total Time', font_size=font_size, halign='left')
-        oeeText = BoxLayout(orientation='vertical', size_hint=(0.3, 0.8), spacing=30,
-                                pos_hint={'right': 0.9, 'top': 0.9}, padding=[10, 10, 10, 10])
+        oeeText = BoxLayout(orientation='vertical', size_hint=(0.3, 0.8), spacing=30, pos_hint={'right': 0.9, 'top': 0.9}, padding=[10, 10, 10, 10])
         oeeText.add_widget(btn_total)
         oeeText.add_widget(btn_good)
         oeeText.add_widget(btn_bad)
@@ -122,7 +122,6 @@ class OEEScreen(Screen):
         oeeText.add_widget(btn_downtime)
         oeeText.add_widget(btn_totaltime)
         self.add_widget(oeeText)
-        self.widgets = [self.availability, self.performance, self.quality, self.oee]
 
         #Bind canvas to widget and set screen color
         self.bind(size=self._update_rect, pos=self._update_rect)

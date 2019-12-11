@@ -6,7 +6,10 @@ from scripts.RobotControl import RobotControl
 robot = RobotControl()
 #robot.moveRobot("PushUp")
 
-robot.velocity = 0.4
+print("Destination Reached: " + str(robot.destinationReached("Reset")))
+robot.moveRobot("Reset")
+print("Destination Reached: " + str(robot.destinationReached("Reset")))
+
 #robot.moveRobot("MirBoxPreGrasp0")
 #robot.moveRobot("MirBoxGrasp0")
 #robot.closeGripper()
@@ -16,7 +19,7 @@ robot.velocity = 0.4
 #robot.loadUnloadMIR()
 #robot.graspBlue()
 
-robot.graspYellow()
+
 
 
 #robot.moveRobot("OverCameraPose")

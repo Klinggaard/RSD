@@ -1,3 +1,4 @@
+import numpy
 import rtde_control
 import rtde_receive
 import rtde_io
@@ -70,9 +71,24 @@ class RobotControl:
 
     def moveRobot(self, graspConfigString):
         if self.isEmergencyStopped():
+            logging.info("[RobotControl] Emegency stop activated, not trying to move")
             return False
         pose = self.datastore[str(graspConfigString)]["q"]
         self.rtde_c.moveJ(pose, self.velocity, self.acceleration)
+
+        #Try to move the robot again if the destination is not reached and is in safeguard stop or fault stop
+        #Add this if there is problems:
+        # and (self.getSafetyMode() == 5 or self.getSafetyMode()==3)
+        if not self.destinationReached(graspConfigString):
+            logging.info("[RobotControl] Did not reach destination, trying again")
+            self.moveRobot(graspConfigString)
+
+    def destinationReached(self, graspConfigString):
+        difference = numpy.subtract(self.datastore[str(graspConfigString)]["q"],  self.getQ())
+        for q in difference:
+            if abs(q) > 0.0004:
+                return False
+        return True
 
     def graspYellow(self):
         self.openGripper()
