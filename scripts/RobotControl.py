@@ -28,7 +28,7 @@ class RobotControl:
         except RuntimeError:
             logging.error("[RobotControl] Cannot connect to Universal robot")
 
-        self.velocity = 0.2
+        self.velocity = 0.5
         self.acceleration = 1.2
         self.datastore = ""
         projectPath = rootpath.detect()
@@ -131,7 +131,7 @@ class RobotControl:
 
     def putBoxesInFeeder(self):
         self.moveRobot("PostFeeder")
-        self.velocity = 0.3
+        self.velocity = 0.2
         self.moveRobot("PreFeeder")
         self.moveRobot("PutFeeder")
         self.openGripper()
@@ -178,18 +178,72 @@ class RobotControl:
         except RuntimeError:
             logging.error("[RobotControl] Cannot connect to Universal robot")
 
+
+    def loadMIR(self):
+        drop0 = ["Load0", "Load1", "Load2", "LoadMir", "MirDropZonePre0", "MirDropZone0"]
+        drop1 = ["Load0", "Load1", "Load2", "LoadMir", "MirDropZonePre1", "MirDropZone1"]
+        reversePath = ["LoadMir", "Load2", "Load1", "Load0"]
+        self.velocity = 0.5
+        self.takeBoxesFromFeeder()
+        self.velocity = 1.5
+        self.moveRobotPath(drop0)
+        self.openGripper()
+        self.moveRobotPath((["MirDropZonePre0"] + reversePath))
+        self.velocity = 0.5
+        self.takeBoxesFromFeeder()
+        self.velocity = 1.5
+        self.moveRobotPath(drop1)
+        self.openGripper()
+        self.moveRobot("MirDropZonePre1")
+        self.moveRobotPath((["MirDropZonePre0"] + reversePath))
+        self.velocity = 0.5
+
+    def unloadMIR(self):
+        movePath = ["Load0", "Load1", "Load2", "LoadMir", "MirDropZonePre0", "MirDropZone0"]
+        reversePath = ["LoadMir", "Load2", "Load1", "Load0"]
+        self.moveRobot("Reset")
+        self.moveRobotPath(movePath)
+        # Push the boxes together
+        self.moveRobot("PushPreUp")
+        self.moveRobot("PushPre")
+        self.velocity = 0.3
+        self.moveRobot("Push")
+        self.moveRobot("PushUp")
+
+        # grasp box on mir
+        self.moveRobot("MirBoxPreGrasp0")
+        self.moveRobot("MirBoxGrasp0")
+        self.closeGripper()
+        self.moveRobot("MirBoxPreGrasp0")
+
+        # Load the boxes to the feeder
+        self.velocity = 0.5
+        self.moveRobotPath(reversePath + ["PostFeeder"])
+        self.putBoxesInFeeder()
+
+        # make sure the gripper is open
+        self.openGripper()
+
+        # move robot to mir
+        path = ["Load0", "Load1", "Load2", "LoadMir"]
+        self.moveRobotPath(path)
+
+        # grasp box on mir
+        self.moveRobot("MirBoxPreGrasp1")
+        self.velocity = 0.3
+        self.moveRobot("MirBoxGrasp1")
+        self.closeGripper()
+        self.moveRobot("MirBoxPreGrasp1")
+
+        # Load the boxes to the feeder
+        self.velocity = 0.5
+        self.moveRobotPath(reversePath + ["PostFeeder"])
+        self.putBoxesInFeeder()
+
     def loadUnloadMIR(self):
         drop0 = ["Load0", "Load1", "Load2", "LoadMir", "MirDropZonePre0", "MirDropZone0"]
         drop1 = ["Load0", "Load1", "Load2", "LoadMir", "MirDropZonePre1", "MirDropZone1"]
         reversePath = ["LoadMir", "Load2", "Load1", "Load0"]
-        self.takeBoxesFromFeeder()
-        self.moveRobotPath(drop0)
-        self.openGripper()
-        self.moveRobotPath((["MirDropZonePre0"] + reversePath))
-        self.takeBoxesFromFeeder()
-        self.moveRobotPath(drop1)
-        self.openGripper()
-        self.moveRobot("MirDropZonePre1")
 
         # Push the boxes together
         self.moveRobot("PushPreUp")

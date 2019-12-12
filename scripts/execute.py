@@ -15,15 +15,15 @@ class ExecuteOrder():
 
     def __init__(self):
         self.robot = RobotControl.getInstance()
-        logging.info("[PackOrders] Connecting to ModBus")
+        logging.info("PackOrders : " + " Connecting to ModBus")
         self.modbus_client = Client(ip="192.168.0.20", port=5020)  # The port will stay 5020
         if not self.modbus_client:
-            logging.ERROR("[PackOrders] Cannot connect to modbus")
+            logging.ERROR("PackOrders : " + " Cannot connect to modbus")
         self.modbus_client.connect()
         self.stateMachine = FSM.getInstance()
-        logging.info("[PackOrders] Connecting to MiR")
+        logging.info("PackOrders : " + "Connecting to MiR")
         self.mir = RestMiR()
-        logging.info("[PackOrders] Connecting to MES server")
+        logging.info("PackOrders : " + "Connecting to MES server")
         self.db_orders = MesOrder()
         self.robot.velocity = 0.25
 
@@ -44,7 +44,22 @@ class ExecuteOrder():
 
         self.oeeInstance = OEE.getInstance()
 
+    def call_mir(self):
+        try:
+            guid = self.mir.get_mission("GoToGr6")
+            self.mir.add_mission_to_queue(guid)
+        except :
+            logging.info("MainThread : " + "Calling MIR unsuccessful")
+            self.stateMachine.change_state('Stop', 'Execute', 'Stopping')
+            self.fail_to_call_mir = True
+            return False
+        else:
+            logging.info("MainThread :" + "  MIR ordered")
+            self.waiting_for_mir = True
+            return True
+
     def prepare_orders(self):
+        #TODO: Time this. The orders should not take more than 10 minutes. If timeout is reached, dump orders
         while self.order_counter < 4:
             if self.robot.isEmergencyStopped():
                 self.stateMachine.change_state('Abort', self.stateMachine.state, 'Aborting')
@@ -56,12 +71,12 @@ class ExecuteOrder():
                 self.reds = self.do_order["red"]
                 self.blues = self.do_order["blue"]
                 self.yellows = self.do_order["yellow"]
-            #TODO make into function to back a specific color
-            #TODO Change the last postion of the place boxes function
             #TODO counter for the wrong bricks, to go into holding, to make sure the bricks are not stuck
+
+            # YELLOW
             while self.yellows > 0:
                 # Update OEE
-                self.oeeInstance.update(sys_up=False, task=self.stateMachine.state)
+                self.oeeInstance.update(sys_up=True, task=self.stateMachine.state)
                 if self.robot.isEmergencyStopped():
                     self.stateMachine.change_state('Abort', self.stateMachine.state, 'Aborting')
                     return False
@@ -71,7 +86,7 @@ class ExecuteOrder():
                     self.robot.graspYellow()
                     verify = self.modbus_client.get_brick_colours()[0]
                     if verify == ERROR:
-                        logging.error("[MainThread] Error, Modbus client / camera problem")
+                        logging.error("MainThread : " + " Error, Modbus client / camera problem")
                         self.robot.dumpBrick()
                         self.refill_yellow -= 1
                     if verify == YELLOW:
@@ -81,17 +96,19 @@ class ExecuteOrder():
                     else:
                         self.robot.dumpBrick()
                         self.refill_yellow -= 1
-                        logging.info("[MainThread] Block has different color than expected - toss it out")
+                        logging.info("MainThread : " + "Block has different color than expected - toss it out")
                     if self.refill_yellow == 0:
                         self.stateMachine.change_state('Hold', 'Execute', 'Holding')
-                        logging.info("[MainThread] Fill in yellow blocks container")
+                        logging.info("MainThread : " + " Fill in yellow blocks container")
                 else:
                     self.stateMachine.change_state('Hold', 'Execute', 'Holding')
-                    logging.info("[MainThread] Fill in yellow blocks container")
+                    logging.info("MainThread : " + "Fill in yellow blocks container")
 
+
+            # RED
             while self.reds > 0:
                 # Update OEE
-                self.oeeInstance.update(sys_up=False, task=self.stateMachine.state)
+                self.oeeInstance.update(sys_up=True, task=self.stateMachine.state)
                 if self.robot.isEmergencyStopped():
                     self.stateMachine.change_state('Abort', self.stateMachine.state, 'Aborting')
                     return False
@@ -103,7 +120,7 @@ class ExecuteOrder():
                     self.modbus_client.connect()
                     verify = self.modbus_client.get_brick_colours()[0]
                     if verify == 3:
-                        logging.error("[MainThread] Error, Modbus client / camera problem")
+                        logging.error("MainThread :" + "  Error, Modbus client / camera problem")
                         self.robot.dumpBrick()
                         self.refill_red -= 1
                     if verify == 1:
@@ -113,17 +130,18 @@ class ExecuteOrder():
                     elif verify != 1:
                         self.robot.dumpBrick()
                         self.refill_red -= 1
-                        logging.info("[MainThread] Block has different color than expected - toss it out")
+                        logging.info("MainThread : Block has different color than expected - toss it out")
                     if self.refill_red == 0:
                         self.stateMachine.change_state('Hold', 'Execute', 'Holding')
-                        logging.info("[MainThread] Fill in red blocks container")
+                        logging.info("MainThread : " + "Fill in red blocks container")
                 else:
                     self.stateMachine.change_state('Hold', 'Execute', 'Holding')
-                    logging.info("[MainThread] Fill in red blocks container")
+                    logging.info("MainThread : " + "Fill in red blocks container")
 
+            # BLUE
             while self.blues > 0:
                 # Update OEE
-                self.oeeInstance.update(sys_up=False, task=self.stateMachine.state)
+                self.oeeInstance.update(sys_up=True, task=self.stateMachine.state)
                 if self.robot.isEmergencyStopped():
                     self.stateMachine.change_state('Abort', self.stateMachine.state, 'Aborting')
                     return False
@@ -135,7 +153,7 @@ class ExecuteOrder():
                     self.modbus_client.connect()
                     verify = self.modbus_client.get_brick_colours()[0]
                     if verify == 3:
-                        logging.error("[MainThread] Error, Modbus client / camera problem")
+                        logging.error("MainThread :" + " Error, Modbus client / camera problem")
                         self.robot.dumpBrick()
                         self.refill_blue -= 1
                     if verify == 0:
@@ -145,13 +163,13 @@ class ExecuteOrder():
                     elif verify != 0:
                         self.robot.dumpBrick()
                         self.refill_blue -= 1
-                        logging.info("[MainThread] Block has different color than expected - toss it out")
+                        logging.info("MainThread : Block has different color than expected - toss it out")
                     if self.refill_blue == 0:
                         self.stateMachine.change_state('Hold', 'Execute', 'Holding')
-                        logging.info("[MainThread] Fill in blue blocks container")
+                        logging.info("MainThread : Fill in blue blocks container")
                 else:
                     self.stateMachine.change_state('Hold', 'Execute', 'Holding')
-                    logging.info("[MainThread] Fill in blue blocks container")
+                    logging.info("MainThread : Fill in blue blocks container")
 
             if self.stateMachine.state != "Execute":
                 break
@@ -159,11 +177,12 @@ class ExecuteOrder():
                 self.stateMachine.change_state('Abort', self.stateMachine.state, 'Aborting')
                 return False
 
-            logging.info("[MainThread] Sub-order completed")
+            logging.info("MainThread : Sub-order completed")
             self.order_counter += 1
             self.db_orders.delete_order(self.do_order)
 
             # 3rd order ready, call MIR
+            '''
             if self.order_counter == 3 and self.stateMachine.state == 'Execute':
                 try:
                     guid = self.mir.get_mission("GoTo6")
@@ -188,6 +207,7 @@ class ExecuteOrder():
                     logging.info("[MainThread] MIR ordered")
                     self.waiting_for_mir = True
                     self.fail_to_call_mir = False
+            '''
 
             self.current_order = False
             if self.order_counter == 4:
@@ -199,11 +219,11 @@ class ExecuteOrder():
         if self.stateMachine.state == "Execute":
             self.order_packed = False
             self.robot.loadUnloadMIR()
-            self.mir.write_register(6, 0)  # MIR can go
+            self.mir.release_mir()
             self.order_packed = True
-            logging.info("[MainThread] MIR departures")
+            logging.info("MainThread :" + " MIR departures")
         else:
-            logging.info("[MainThread] Go to stop, as packing_orders must be done in Execute state")
+            logging.info("MainThread :" + " Go to stop, as packing_orders must be done in Execute state")
             self.stateMachine.change_state('Stop', 'Execute', 'Stopping')
 
     def main_thread_loop(self):
@@ -220,7 +240,7 @@ class ExecuteOrder():
                 self.stateMachine.change_state('Abort', self.stateMachine.state, 'Aborting')
 
             execute_state = self.stateMachine.state
-            print("[State] : ", self.stateMachine.state)
+            logging.info("State : " + self.stateMachine.state)
 
             if execute_state == 'Starting':
                 self.robot.moveRobot("Reset")
@@ -231,22 +251,25 @@ class ExecuteOrder():
                 pass
 
             elif execute_state == 'Execute':
-                if self.full_orders <= 1000:
+                if self.mir.is_docked():
                     if not self.order_prepared:
+
                         self.prepare_orders()
-                    if self.waiting_for_mir:
-                        if self.mir.read_register(6) == 1:
-                            if not self.order_packed:
-                                self.pack_orders()
-                        if self.mir.read_register(6) == 0 and not self.order_packed:
-                            self.stateMachine.change_state('Suspend', 'Execute', 'Suspending')
-                    if self.order_prepared and self.order_packed:
-                        self.order_prepared = False
-                        self.order_packed = False
-                        self.waiting_for_mir = False
-                        self.full_orders += 1
-                if self.full_orders > 1000:
-                    self.stateMachine.change_state('SC', 'Execute', 'Completing')
+                    elif not self.order_packed:
+                        if self.mir.get_time() < 500: #If there is less than 100 seconds left, dont try to pack
+                            self.pack_orders()
+
+                if not self.mir.is_docked() and not self.order_packed:
+                    self.stateMachine.change_state('Suspend', 'Execute', 'Suspending')
+                # if not self.order_prepared:
+                #     self.prepare_orders()
+                if self.order_prepared and self.order_packed:
+                    self.order_prepared = False
+                    self.order_packed = False
+                    self.waiting_for_mir = False
+                    self.full_orders += 1
+                    self.oeeInstance.update(sys_up=True, task=self.stateMachine.state, update_order=True, order_status=OEE.COMPLETED)
+
 
             elif execute_state == 'Completing':
                 self.stateMachine.change_state('SC', 'Completing', 'Complete')
@@ -293,10 +316,10 @@ class ExecuteOrder():
                 self.stateMachine.change_state('SC', 'Suspending', 'Suspended')
 
             elif execute_state == 'Suspended':
-                if self.mir.read_register(6) != 1:
-                    logging.info("[MainThread] Waiting for MIR")
-                    print("[State] : ", self.stateMachine.state)
-                if self.mir.read_register(6) == 1:
+                if not self.mir.is_docked():
+                    logging.info("MainThread : Waiting for MIR")
+                    self.call_mir()
+                else:
                     logging.info("MIR arrived")
                     self.stateMachine.change_state('Unsuspend', 'Suspended', 'Unsuspending')
 

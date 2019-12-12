@@ -6,9 +6,7 @@ from scripts.RobotControl import RobotControl
 robot = RobotControl()
 #robot.moveRobot("PushUp")
 
-print("Destination Reached: " + str(robot.destinationReached("Reset")))
-robot.moveRobot("Reset")
-print("Destination Reached: " + str(robot.destinationReached("Reset")))
+robot.unloadMIR()
 
 #robot.moveRobot("MirBoxPreGrasp0")
 #robot.moveRobot("MirBoxGrasp0")

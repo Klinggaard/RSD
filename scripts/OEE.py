@@ -91,9 +91,12 @@ class OEE:
         if not sys_up:
             self._dtl += self._timestamps[-1] - self._timestamps[-2]
             log.debug("timeStamp %f", self._timestamps[-1] - self._timestamps[-2])
+        else:
+            self._ot += self._timestamps[-1] - self._timestamps[-2]
+
         # else:
         #     self.dtl = 0.0
-        self._ot = self._ppt - self._dtl
+        #self._ot = self._ppt - self._dtl
         #print(self.ot, self.ppt, self.dtl)
         self._neot = self._ot - self._sl
         self._fpt = self._neot - self._ql
@@ -112,10 +115,10 @@ class OEE:
             assert order_status == self.REJECTED or order_status == self.COMPLETED, \
                 "Unknown order_status - Use REJECTED or COMPLETED"
             if order_status == self.COMPLETED:
-                self.t_order += 4
-                self.g_order += 4
+                self.t_order += 1
+                self.g_order += 1
             elif order_status == self.REJECTED:
-                self.t_order += 4
+                self.t_order += 1
 
 
 
