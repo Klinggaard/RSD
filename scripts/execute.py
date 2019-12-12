@@ -41,6 +41,9 @@ class ExecuteOrder():
         self.yellows = 0
         self.do_order = []
         self.full_orders = 0
+        # Init the registers on the mir
+        self.mir.write_register(6, 0)
+        self.mir.write_register(60, 0)
 
         self.oeeInstance = OEE.getInstance()
 
@@ -61,6 +64,12 @@ class ExecuteOrder():
     def prepare_orders(self):
         #TODO: Time this. The orders should not take more than 10 minutes. If timeout is reached, dump orders
         while self.order_counter < 4:
+            if self.mir.is_timeout():
+                self.stateMachine.change_state('Hold', 'Execute', 'Holding')
+                self.oeeInstance.update(sys_up=True, task="Holding", update_order=True, order_status=OEE.REJECTED)
+                mir_id = self.mir.get_mission("GoToGr6")
+                self.mir.delete_from_queue(mir_id)
+                return False
             if self.robot.isEmergencyStopped():
                 self.stateMachine.change_state('Abort', self.stateMachine.state, 'Aborting')
                 return False
@@ -218,7 +227,7 @@ class ExecuteOrder():
     def pack_orders(self):
         if self.stateMachine.state == "Execute":
             self.order_packed = False
-            self.robot.loadUnloadMIR()
+            self.robot.loadMIR()
             self.mir.release_mir()
             self.order_packed = True
             logging.info("MainThread :" + " MIR departures")
@@ -229,7 +238,6 @@ class ExecuteOrder():
     def main_thread_loop(self):
         while True:
             time.sleep(0.1)
-            self.oeeInstance.update(sys_up=True, task=self.stateMachine.state)
 
             if self.stateMachine.state == 'Execute':
                 self.oeeInstance.update(sys_up=True, task=self.stateMachine.state)
@@ -238,6 +246,7 @@ class ExecuteOrder():
 
             if self.robot.isEmergencyStopped() and self.stateMachine.state != 'Aborted':
                 self.stateMachine.change_state('Abort', self.stateMachine.state, 'Aborting')
+                self.oeeInstance.update(sys_up=False, task=self.stateMachine.state, update_order=True, order_status=OEE.REJECTED)
 
             execute_state = self.stateMachine.state
             logging.info("State : " + self.stateMachine.state)
@@ -248,12 +257,13 @@ class ExecuteOrder():
                 self.stateMachine.change_state('SC', 'Starting', 'Execute')
 
             if execute_state == 'Idle':
+
                 pass
 
             elif execute_state == 'Execute':
                 if self.mir.is_docked():
                     if not self.order_prepared:
-
+                        self.robot.unloadMIR()
                         self.prepare_orders()
                     elif not self.order_packed:
                         if self.mir.get_time() < 500: #If there is less than 100 seconds left, dont try to pack
@@ -295,6 +305,8 @@ class ExecuteOrder():
                 if self.robot.getRuntimeState() == 4 or self.robot.getRuntimeState() == 1:
                     self.robot.reInitializeRTDE()
                     self.robot.reconnect()
+                    mir_id = self.mir.get_mission("GoToGr6")
+                    self.mir.delete_from_queue(mir_id)
                 if self.robot.getRuntimeState() == 2:
                     self.stateMachine.change_state('SC', 'Clearing', 'Stopped')
 

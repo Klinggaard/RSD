@@ -5,8 +5,9 @@ from scripts.RobotControl import RobotControl
 #
 robot = RobotControl()
 #robot.moveRobot("PushUp")
-
-robot.unloadMIR()
+robot.moveRobot("Reset")
+#robot.unloadMIR()
+#robot.loadMIR()
 
 #robot.moveRobot("MirBoxPreGrasp0")
 #robot.moveRobot("MirBoxGrasp0")

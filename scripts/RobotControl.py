@@ -76,7 +76,7 @@ class RobotControl:
         pose = self.datastore[str(graspConfigString)]["q"]
         self.rtde_c.moveJ(pose, self.velocity, self.acceleration)
 
-        while not self.destinationReached(graspConfigString) and not self.isEmergencyStopped():
+        while not self.destinationReached(graspConfigString) :
             print("SafetyMode: " + str(self.getSafetyMode()))
             if self.isEmergencyStopped(): #Check if e stop has been activated in the mean time
                 logging.info("[RobotControl] Emegency stop activated, not trying to move")
@@ -93,8 +93,10 @@ class RobotControl:
 
     def destinationReached(self, graspConfigString):
         difference = numpy.subtract(self.datastore[str(graspConfigString)]["q"],  self.getQ())
+        logging.info(str(graspConfigString))
+        logging.info("ActualQ: " + str(self.getQ()))
         for q in difference:
-            if abs(q) > 0.0004:
+            if abs(q) > 0.01:
                 return False
         return True
 
@@ -199,10 +201,13 @@ class RobotControl:
         self.velocity = 0.5
 
     def unloadMIR(self):
-        movePath = ["Load0", "Load1", "Load2", "LoadMir", "MirDropZonePre0", "MirDropZone0"]
+        movePath = ["PreTwist", "Load0", "Load1", "Load2", "LoadMir"]
         reversePath = ["LoadMir", "Load2", "Load1", "Load0"]
-        self.moveRobot("Reset")
+
+        self.velocity = 1.5
         self.moveRobotPath(movePath)
+        self.velocity = 0.5
+
         # Push the boxes together
         self.moveRobot("PushPreUp")
         self.moveRobot("PushPre")
@@ -217,8 +222,9 @@ class RobotControl:
         self.moveRobot("MirBoxPreGrasp0")
 
         # Load the boxes to the feeder
-        self.velocity = 0.5
+        self.velocity = 1.5
         self.moveRobotPath(reversePath + ["PostFeeder"])
+        self.velocity = 0.3
         self.putBoxesInFeeder()
 
         # make sure the gripper is open

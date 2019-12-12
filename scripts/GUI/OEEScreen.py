@@ -140,7 +140,6 @@ class OEEScreen(Screen):
 
     # Simple animation to show the circular progress bar in action
     def animate(self, dt):
-        self.oeeInstance.update(sys_up=True)
         self.availability.set_value(self.oeeInstance.get_availability())
         self.performance.set_value(self.oeeInstance.get_performance())
         self.quality.set_value(self.oeeInstance.get_quality())

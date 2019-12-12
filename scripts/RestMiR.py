@@ -78,6 +78,18 @@ class RestMiR():
         except requests.exceptions.ConnectionError:
             return False
 
+    def delete_from_queue(self, mission):
+        try:
+            r = requests.delete(self.HOST + 'mission_queue/' + str(mission["guid"]), headers=self.authorization)
+            if r.status_code == 204:
+                print("MIR mission deleted due to abort")
+                return True
+        except r.status_code != 204:
+            print("Error deleting MIR mission" + str(r.status_code))
+            return False
+
+
+
     #In the mission we will have to set coils (plc registers) in order to get information if robot has docked and etc.
     def read_register(self, register_id):
 

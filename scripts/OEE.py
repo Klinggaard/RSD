@@ -90,7 +90,6 @@ class OEE:
         self._timestamps.append(t)
         if not sys_up:
             self._dtl += self._timestamps[-1] - self._timestamps[-2]
-            log.debug("timeStamp %f", self._timestamps[-1] - self._timestamps[-2])
         else:
             self._ot += self._timestamps[-1] - self._timestamps[-2]
 
