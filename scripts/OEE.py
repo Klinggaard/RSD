@@ -166,7 +166,7 @@ class OEE:
         return {
             'Total Orders': self.t_order,
             'Good Orders':  self.g_order,
-            'Bad Orders': self._quality()
+            'Bad Orders': self.t_order-self.g_order
         }
 
     def get_time(self):

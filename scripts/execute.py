@@ -238,7 +238,7 @@ class ExecuteOrder():
     def main_thread_loop(self):
         while True:
             time.sleep(0.1)
-
+            self.robot.reconnect()
             if self.stateMachine.state == 'Execute':
                 self.oeeInstance.update(sys_up=True, task=self.stateMachine.state)
             else:

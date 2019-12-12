@@ -69,6 +69,11 @@ class RobotControl:
     def readInputBits(self):
         return self.rtde_r.getActualDigitalInputBits()
 
+    def isConnected(self):
+        if not self.rtde_c.isConnected() or not self.rtde_r.isConnected():
+            return False
+        return True
+
     def moveRobot(self, graspConfigString):
         if self.isEmergencyStopped():
             logging.info("[RobotControl] Emegency stop activated, not trying to move")
@@ -77,15 +82,20 @@ class RobotControl:
         self.rtde_c.moveJ(pose, self.velocity, self.acceleration)
 
         while not self.destinationReached(graspConfigString) :
+            if not self.isConnected():
+                self.reconnect()
             print("SafetyMode: " + str(self.getSafetyMode()))
             if self.isEmergencyStopped(): #Check if e stop has been activated in the mean time
                 logging.info("[RobotControl] Emegency stop activated, not trying to move")
                 return False
-
+            #TODO: WHEN GOING INTO PROTECTIVE MODE IT CRASHES
             if self.getSafetyMode() == 3: #If in protective stop
                 logging.info("[RobotControl] Robot did not reach destination, retrying...")
                 self.reInitializeRTDE()
-                self.reconnect()
+                while not self.isConnected():
+                    self.reconnect()
+                    time.sleep(1)
+
             self.rtde_c.moveJ(pose, self.velocity, self.acceleration)
 
         return True
@@ -159,9 +169,9 @@ class RobotControl:
         return self.rtde_r.getSafetyMode()
 
     def reconnect(self):
-        while not self.rtde_r.isConnected():
+        if not self.rtde_r.isConnected():
             self.rtde_r.reconnect()
-        while not self.rtde_c.isConnected():
+        if not self.rtde_c.isConnected():
             self.rtde_c.reconnect()
 
     def isEmergencyStopped(self):

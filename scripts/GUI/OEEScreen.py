@@ -140,20 +140,20 @@ class OEEScreen(Screen):
 
     # Simple animation to show the circular progress bar in action
     def animate(self, dt):
-        self.availability.set_value(self.oeeInstance.get_availability())
-        self.performance.set_value(self.oeeInstance.get_performance())
-        self.quality.set_value(self.oeeInstance.get_quality())
-        self.oee.set_value(self.oeeInstance.get_oee())
+        self.availability.set_value(self.oeeInstance.get_availability()*100)
+        self.performance.set_value(self.oeeInstance.get_performance()*100)
+        self.quality.set_value(self.oeeInstance.get_quality()*100)
+        self.oee.set_value(self.oeeInstance.get_oee()*100)
 
         #Update text:
         metrics = self.oeeInstance.get_metrics()
-        self.btn_total.text ='Total Orders:\n' + str(metrics['Total Orders'])
-        self.btn_good.text = 'Good Orders:\n' + str(metrics['Good Orders'])
-        self.btn_bad.text ='Bad Orders:\n' + str(metrics['Bad Orders'])
+        self.btn_total.text ='Total Orders [%]:\n' + str(metrics['Total Orders'])
+        self.btn_good.text = 'Good Orders [%]:\n' + str(metrics['Good Orders'])
+        self.btn_bad.text ='Bad Orders [%]:\n' + str(metrics['Bad Orders'])
         oeeTime = self.oeeInstance.get_time()
-        self.btn_uptime.text ='Uptime:\n' + str(round(oeeTime["Up-time"],3))
-        self.btn_downtime.text ='Downtime:\n' + str(round(oeeTime["Down-time"],3))
-        self.btn_totaltime.text ='Total Time:\n' + str(round(oeeTime["Total time"],3))
+        self.btn_uptime.text ='Uptime [min]:\n' + str(round(oeeTime["Up-time"],3))
+        self.btn_downtime.text ='Downtime [min]:\n' + str(round(oeeTime["Down-time"],3))
+        self.btn_totaltime.text ='Total Time [min]:\n' + str(round(oeeTime["Total time"],3))
 
 
     def _update_rect(self, instance, value):
