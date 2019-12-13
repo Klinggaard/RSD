@@ -44,6 +44,7 @@ class ExecuteOrder():
         # Init the registers on the mir
         self.mir.write_register(6, 0)
         self.mir.write_register(60, 0)
+        self.mir_unloaded = False
 
         self.oeeInstance = OEE.getInstance()
 
@@ -62,8 +63,8 @@ class ExecuteOrder():
             return True
 
     def prepare_orders(self):
-        #TODO: Time this. The orders should not take more than 10 minutes. If timeout is reached, dump orders
-        self.order_counter = 0  # To ensure that we reset the order_counter if an order was not finished
+        # TODO: Time this. The orders should not take more than 10 minutes. If timeout is reached, dump orders
+        # self.order_counter = 0  # To ensure that we reset the order_counter if an order was not finished CANNOT DO THAT - reset it in clearing
         while self.order_counter < 4:
             if self.mir.is_timeout():
                 self.stateMachine.change_state('Hold', 'Execute', 'Holding')
@@ -71,18 +72,19 @@ class ExecuteOrder():
                     self.oeeInstance.update(sys_up=True, task="Holding", update_order=True, order_status=OEE.REJECTED)
                 mir_id = self.mir.get_mission("GoToGr6")
                 self.mir.delete_from_queue(mir_id)
-                return False
+                break
+
+            # TODO: check if this change is OK, I think it's enough - take care of everything in clearing
             if self.robot.isEmergencyStopped():
                 self.stateMachine.change_state('Abort', self.stateMachine.state, 'Aborting')
-                return False
-            self.order_prepared = False
+                break
+
             if not self.current_order:
                 self.do_order = self.db_orders.get_put_order()
                 self.current_order = True
                 self.reds = self.do_order["red"]
                 self.blues = self.do_order["blue"]
                 self.yellows = self.do_order["yellow"]
-            #TODO counter for the wrong bricks, to go into holding, to make sure the bricks are not stuck
 
             # YELLOW
             while self.yellows > 0:
@@ -192,34 +194,6 @@ class ExecuteOrder():
             self.order_counter += 1
             self.db_orders.delete_order(self.do_order)
 
-            # 3rd order ready, call MIR
-            '''
-            if self.order_counter == 3 and self.stateMachine.state == 'Execute':
-                try:
-                    guid = self.mir.get_mission("GoTo6")
-                    self.mir.add_mission_to_queue(guid)
-                except ():
-                    logging.info("[MainThread] Calling MIR unsuccessful")
-                    self.stateMachine.change_state('Stop', 'Execute', 'Stopping')
-                    self.fail_to_call_mir = True
-                else:
-                    logging.info("[MainThread] MIR ordered")
-                    self.waiting_for_mir = True
-
-            # if we failed to call MIR before
-            if self.order_counter == 4 and self.fail_to_call_mir and self.stateMachine.state == 'Execute':
-                try:
-                    guid = self.mir.get_mission("GoTo6")
-                    self.mir.add_mission_to_queue(guid)
-                except ():
-                    logging.info("[MainThread] Calling MIR again unsuccessful")
-                    self.stateMachine.change_state('Stop', 'Execute', 'Stopping')
-                else:
-                    logging.info("[MainThread] MIR ordered")
-                    self.waiting_for_mir = True
-                    self.fail_to_call_mir = False
-            '''
-
             self.current_order = False
             if self.order_counter == 4:
                 self.order_counter = 0
@@ -262,29 +236,35 @@ class ExecuteOrder():
                 self.stateMachine.change_state('SC', 'Starting', 'Execute')
 
             if execute_state == 'Idle':
-
                 pass
 
             elif execute_state == 'Execute':
+                # SEQUENCE WHEN EVERYTHING IS OK
+                if not self.mir.is_docked() and not self.waiting_for_mir:  # no need to go to suspend at the beginning
+                    self.call_mir()
                 if self.mir.is_docked():
                     if not self.order_prepared:
-                        self.robot.unloadMIR()
-                        self.prepare_orders()
-                    elif not self.order_packed:
-                        if self.mir.get_time() < 500: #If there is less than 100 seconds left, dont try to pack
+                        if not self.mir_unloaded:
+                            self.robot.unloadMIR()
+                            self.mir_unloaded = True # because it's a long sequence, in case we stop during it
+                            self.prepare_orders()
+                        else:
+                            self.prepare_orders()
+                        if self.order_prepared:
                             self.pack_orders()
-
-                if not self.mir.is_docked() and not self.order_packed:
-                    self.stateMachine.change_state('Suspend', 'Execute', 'Suspending')
-                # if not self.order_prepared:
-                #     self.prepare_orders()
+                    '''elif not self.order_packed:
+                        if self.mir.get_time() < 500: #If there is less than 100 seconds left, dont try to pack
+                            self.pack_orders()'''
                 if self.order_prepared and self.order_packed:
                     self.order_prepared = False
                     self.order_packed = False
                     self.waiting_for_mir = False
                     self.full_orders += 1
+                    self.mir_unloaded = False
                     self.oeeInstance.update(sys_up=True, task=self.stateMachine.state, update_order=True, order_status=OEE.COMPLETED)
 
+                if not self.mir.is_docked() and not self.order_packed:
+                    self.stateMachine.change_state('Suspend', 'Execute', 'Suspending')
 
             elif execute_state == 'Completing':
                 self.stateMachine.change_state('SC', 'Completing', 'Complete')
@@ -293,7 +273,7 @@ class ExecuteOrder():
                 self.stateMachine.change_state('Reset', 'Complete', 'Resetting')
 
             elif execute_state == 'Resetting':
-                self.robot.moveRobot("Reset")  # to discuss if we want to do it here or after trigger
+                self.robot.moveRobot("Reset")
                 self.robot.openGripper()
                 self.stateMachine.change_state('SC', 'Resetting', 'Idle')
                 if self.order_prepared and not self.waiting_for_mir:
@@ -306,6 +286,7 @@ class ExecuteOrder():
                 if not self.robot.isEmergencyStopped():
                     self.stateMachine.change_state('Clear', 'Aborted', 'Clearing')
 
+            # TODO: reinitalize the class or change all globals to false and so on
             elif execute_state == 'Clearing':
                 if self.robot.getRuntimeState() == 4 or self.robot.getRuntimeState() == 1:
                     self.robot.reInitializeRTDE()
@@ -333,11 +314,12 @@ class ExecuteOrder():
                 self.stateMachine.change_state('SC', 'Suspending', 'Suspended')
 
             elif execute_state == 'Suspended':
-                if not self.mir.is_docked():
+                if not self.mir.is_docked() and not self.waiting_for_mir:
                     logging.info("MainThread : Waiting for MIR")
                     self.call_mir()
                 else:
                     logging.info("MIR arrived")
+                    self.waiting_for_mir = False
                     self.stateMachine.change_state('Unsuspend', 'Suspended', 'Unsuspending')
 
             elif execute_state == 'Unsuspending':
