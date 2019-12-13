@@ -1,5 +1,6 @@
 import time
 import logging
+import csv
 
 logging.basicConfig()
 log = logging.getLogger()
@@ -48,6 +49,16 @@ class OEE:
         self.performance = 0
         self.quality = 0
         self.oee = 0
+
+
+        self.last_save = time.time()
+        self.save_interval = 300  # 5 minutes
+
+        self.file = "OEE_LOG/OEE_LOG-"+time.strftime("%Y%m%d-%H%M%S")+".csv"
+        with open(self.file, mode='w') as my_file:
+            file_writer = csv.writer(my_file, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
+
+            file_writer.writerow(['total_orders', 'good_orders', 'bad_orders', 'total_time','uptime','downtime'])
 
         if start:
             self.start(self._task)
@@ -103,6 +114,8 @@ class OEE:
 
     def update(self, sys_up, task=None, update_order=False, order_status=None):
         self._update(sys_up=sys_up, t=time.time()/60)
+        if time.time()-self.last_save > self.save_interval:
+            self.save_oee()
 
         if task is None:
             assert type(self._task) is str, "No task assigned - Task must be assigned by first update"
@@ -198,7 +211,14 @@ class OEE:
 
         self.start(self._task)
 
-
+    def save_oee(self):
+        log.info("OEE: Saving log")
+        with open(self.file, mode='a') as my_file:
+            file_writer = csv.writer(my_file, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
+            metrics = self.get_metrics()
+            my_time = self.get_time()
+            file_writer.writerow([metrics['Total Orders'], metrics['Good Orders'], metrics['Bad Orders'], my_time['Total time'], my_time['Up-time'], my_time['Down-time']])
+        self.last_save = time.time()
 '''
 oee = OEE(start=True, task="testing")
 c = 0
