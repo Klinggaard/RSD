@@ -13,7 +13,7 @@ class OEE:
     __instance = None  # INITIAL INSTANCE OF CLASS
 
     @staticmethod
-    def getInstance(ict=1, pot=24*60, pst=60, start=False, task=None):
+    def getInstance(ict=4.25, pot=24*60, pst=60, start=False, task=None):
         if OEE.__instance == None:
             OEE(ict=ict, pot=pot, pst=pst, start=start, task=task)
         """ Static access method. """
@@ -71,7 +71,7 @@ class OEE:
 
     def _availability(self):
         assert self._started is True, "OEE module not started"
-        self.availability = self._ot / self._ppt
+        self.availability = self._ot / (self._ot + self._dtl)
         return self.availability
 
     def _performance(self):
@@ -93,7 +93,7 @@ class OEE:
 
     def _oee(self):
         assert self._started is True, "OEE module not started"
-        self.oee = (self.g_order * self._ict) / self._ppt
+        self.oee = self.get_availability()*self.get_performance()*self.get_quality()
         return self.oee
 
     def _update(self, sys_up, t):

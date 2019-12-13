@@ -15,7 +15,9 @@ from kivy.lang.builder import Builder
 from kivy.graphics import Color, Ellipse, Rectangle
 from kivy.clock import Clock
 
+from scripts import finite_state_machine
 from scripts.OEE import OEE
+from scripts.RobotControl import RobotControl
 
 
 class CircularProgressBar(ProgressBar):
@@ -94,7 +96,9 @@ class OEEScreen(Screen):
     def __init__(self, **kwargs):
         # make sure we aren't overriding any important functionality
         super(OEEScreen, self).__init__(**kwargs)
-
+        self.state_machine = finite_state_machine.FiniteStateMachine.getInstance()
+        #Robot instance
+        self.robot = RobotControl.getInstance()
         #Get oee instance
         self.oeeInstance = OEE.getInstance()
 
@@ -140,6 +144,11 @@ class OEEScreen(Screen):
 
     # Simple animation to show the circular progress bar in action
     def animate(self, dt):
+        if self.state_machine.state == 'Execute' and not self.robot.getSafetyMode() == 5:
+            self.oeeInstance.update(sys_up=True, task=self.state_machine.state)
+        else:
+            self.oeeInstance.update(sys_up=False, task=self.state_machine.state)
+
         self.availability.set_value(self.oeeInstance.get_availability()*100)
         self.performance.set_value(self.oeeInstance.get_performance()*100)
         self.quality.set_value(self.oeeInstance.get_quality()*100)
@@ -147,9 +156,9 @@ class OEEScreen(Screen):
 
         #Update text:
         metrics = self.oeeInstance.get_metrics()
-        self.btn_total.text ='Total Orders [%]:\n' + str(metrics['Total Orders'])
-        self.btn_good.text = 'Good Orders [%]:\n' + str(metrics['Good Orders'])
-        self.btn_bad.text ='Bad Orders [%]:\n' + str(metrics['Bad Orders'])
+        self.btn_total.text ='Total Orders:\n' + str(metrics['Total Orders'])
+        self.btn_good.text = 'Good Orders:\n' + str(metrics['Good Orders'])
+        self.btn_bad.text ='Bad Orders:\n' + str(metrics['Bad Orders'])
         oeeTime = self.oeeInstance.get_time()
         self.btn_uptime.text ='Uptime [min]:\n' + str(round(oeeTime["Up-time"],3))
         self.btn_downtime.text ='Downtime [min]:\n' + str(round(oeeTime["Down-time"],3))

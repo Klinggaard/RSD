@@ -21,6 +21,7 @@ class ExecuteOrder():
             logging.ERROR("PackOrders : " + " Cannot connect to modbus")
         self.modbus_client.connect()
         self.stateMachine = FSM.getInstance()
+        self.stateMachine.change_state('Stop', 'Execute', 'Stopping')
         logging.info("PackOrders : " + "Connecting to MiR")
         self.mir = RestMiR()
         logging.info("PackOrders : " + "Connecting to MES server")
@@ -46,29 +47,52 @@ class ExecuteOrder():
         self.mir.write_register(60, 0)
         self.mir_unloaded = False
 
+        self.started_packing = False
+
         self.oeeInstance = OEE.getInstance()
 
     def call_mir(self):
         try:
             guid = self.mir.get_mission("GoToGr6")
-            self.mir.add_mission_to_queue(guid)
+            result = self.mir.add_mission_to_queue(guid)
+            logging.info("MainThread :" + "  MIR ordered")
+            self.waiting_for_mir = True
+            return True
         except :
             logging.info("MainThread : " + "Calling MIR unsuccessful")
             self.stateMachine.change_state('Stop', 'Execute', 'Stopping')
             self.fail_to_call_mir = True
             return False
-        else:
-            logging.info("MainThread :" + "  MIR ordered")
-            self.waiting_for_mir = True
-            return True
+
+    def clear_system(self):
+        self.refill_yellow = 18
+        self.refill_red = 18
+        self.refill_blue = 18
+        self.current_order = False
+        self.order_counter = 0
+        self.order_prepared = False
+        self.order_packed = False
+        self.waiting_for_mir = False
+        self.fail_to_call_mir = False
+        self.reds = 0
+        self.blues = 0
+        self.yellows = 0
+        self.do_order = []
+        self.full_orders = 0
+        # Init the registers on the mir
+        self.mir.write_register(6, 0)
+        self.mir.write_register(60, 0)
+        self.mir_unloaded = False
+        self.started_packing = False
 
     def prepare_orders(self):
         # TODO: Time this. The orders should not take more than 10 minutes. If timeout is reached, dump orders
         # self.order_counter = 0  # To ensure that we reset the order_counter if an order was not finished CANNOT DO THAT - reset it in clearing
         while self.order_counter < 4:
+            self.started_packing = True
             if self.mir.is_timeout():
                 self.stateMachine.change_state('Hold', 'Execute', 'Holding')
-                if self.order_counter > 0:  # OEE now only adds a reject if the order was started
+                if self.started_packing:  # OEE now only adds a reject if the order was started
                     self.oeeInstance.update(sys_up=True, task="Holding", update_order=True, order_status=OEE.REJECTED)
                 mir_id = self.mir.get_mission("GoToGr6")
                 self.mir.delete_from_queue(mir_id)
@@ -116,7 +140,6 @@ class ExecuteOrder():
                 else:
                     self.stateMachine.change_state('Hold', 'Execute', 'Holding')
                     logging.info("MainThread : " + "Fill in yellow blocks container")
-
 
             # RED
             while self.reds > 0:
@@ -191,12 +214,13 @@ class ExecuteOrder():
                 return False
 
             logging.info("MainThread : Sub-order completed")
-            self.order_counter += 1
             self.db_orders.delete_order(self.do_order)
+            self.order_counter += 1
 
             self.current_order = False
             if self.order_counter == 4:
                 self.order_counter = 0
+                self.started_packing = False
                 self.order_prepared = True
                 break
 
@@ -215,17 +239,13 @@ class ExecuteOrder():
         while True:
             time.sleep(0.1)
             self.robot.reconnect()
-            if self.stateMachine.state == 'Execute':
+            if self.stateMachine.state == 'Execute' and not self.robot.getSafetyMode() == 5:
                 self.oeeInstance.update(sys_up=True, task=self.stateMachine.state)
             else:
                 self.oeeInstance.update(sys_up=False, task=self.stateMachine.state)
 
             if self.robot.isEmergencyStopped() and self.stateMachine.state != 'Aborted':
                 self.stateMachine.change_state('Abort', self.stateMachine.state, 'Aborting')
-                if self.order_counter > 0:  # Emergency no longer adds a
-                    self.oeeInstance.update(sys_up=False, task=self.stateMachine.state, update_order=True, order_status=OEE.REJECTED)
-                else:
-                    self.oeeInstance.update(sys_up=False, task=self.stateMachine.state)
 
             execute_state = self.stateMachine.state
             logging.info("State : " + self.stateMachine.state)
@@ -280,6 +300,9 @@ class ExecuteOrder():
                     self.waiting_for_mir = True
 
             elif execute_state == 'Aborting':
+                if self.started_packing:
+                    self.oeeInstance.update(sys_up=True, task="Holding", update_order=True, order_status=OEE.REJECTED)
+                self.started_packing = False
                 self.stateMachine.change_state('SC', 'Aborting', 'Aborted')
 
             elif execute_state == 'Aborted':
@@ -288,6 +311,7 @@ class ExecuteOrder():
 
             # TODO: reinitalize the class or change all globals to false and so on
             elif execute_state == 'Clearing':
+                self.clear_system()
                 if self.robot.getRuntimeState() == 4 or self.robot.getRuntimeState() == 1:
                     self.robot.reInitializeRTDE()
                     self.robot.reconnect()
@@ -314,9 +338,11 @@ class ExecuteOrder():
                 self.stateMachine.change_state('SC', 'Suspending', 'Suspended')
 
             elif execute_state == 'Suspended':
-                if not self.mir.is_docked() and not self.waiting_for_mir:
+                if not self.mir.is_docked():
                     logging.info("MainThread : Waiting for MIR")
                     self.call_mir()
+                    self.waiting_for_mir = True
+                    time.sleep(1)
                 else:
                     logging.info("MIR arrived")
                     self.waiting_for_mir = False

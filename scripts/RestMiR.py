@@ -18,21 +18,23 @@ class RestMiR():
     #We need to put the name of our mission
 
     def add_mission_to_queue(self, mission):
-        r = requests.get(self.HOST + 'mission_queue', headers=self.authorization)
+        data = {"filters" : [{"fieldname": "state", "operator": "IN", "value": ["Pending", "Executing"]}]}
+        r = requests.post(self.HOST + 'mission_queue/search', json=data, headers=self.authorization)
         data = {"mission_id": str(mission["guid"])}
-        for i in [-1, -2, -3, -4]:
-            # print(data['mission_id'])
-            _id = requests.get(self.HOST + 'mission_queue/' + str(r.json()[i]['id']), headers=self.authorization)
-            # print(_id.json()['mission_id'])
-            if data['mission_id'] == _id.json()['mission_id']:
-                if r.json()[i]['state'] == 'Pending' or r.json()[i]['state'] == 'Executing':
-                    print("ERROR" + " Already Pending or Executing")
-                    return 0
+        if  len(r.json()) > 0:
+            for i in range(0, len(r.json())):
+                #print(data['mission_id'])
+                _id = requests.get(self.HOST + 'mission_queue/'+str(r.json()[i]['id']), headers=self.authorization)
+                #print(_id.json()['mission_id'])
+                if data['mission_id'] == _id.json()['mission_id']:
+                    if r.json()[i]['state'] == 'Pending' or  r.json()[i]['state'] == 'Executing':
+                        logging.info("ERROR Mission Already Pending or Executing")
+                        return False
         response = requests.post(self.HOST + "mission_queue", json=data, headers=self.authorization)
         if response.status_code != 201:
             print("ERROR" + str(response.status_code))
-            return 0
-        return 1
+            return False
+        return True
 
     def is_docked(self):
         if self.read_register(6) == 1:
@@ -57,26 +59,6 @@ class RestMiR():
                     mission = counter
                     logging.info(mission)
             return mission
-
-    def add_mission_to_queue(self, mission):
-        try:
-            r = requests.get(self.HOST + 'mission_queue', headers=self.authorization)
-            data = {"mission_id": str(mission["guid"])}
-            for i in [-1, -2, -3, -4]:
-                # print(data['mission_id'])
-                _id = requests.get(self.HOST + 'mission_queue/' + str(r.json()[i]['id']), headers=self.authorization)
-                # print(_id.json()['mission_id'])
-                if data['mission_id'] == _id.json()['mission_id']:
-                    if r.json()[i]['state'] == 'Pending' or r.json()[i]['state'] == 'Executing':
-                        print("ERROR" + " Already Pending or Executing")
-                        return False
-            response = requests.post(self.HOST + "mission_queue", json=data, headers=self.authorization)
-            if response.status_code != 201:
-                print("ERROR" + str(response.status_code))
-                return False
-            return True
-        except requests.exceptions.ConnectionError:
-            return False
 
     def delete_from_queue(self, mission):
         try:
@@ -109,7 +91,7 @@ class RestMiR():
         return register_value
 
     def is_timeout(self):
-        if self.get_time()> 599:
+        if self.get_time() > 599:
             return True
         return False
 

@@ -4,8 +4,14 @@ from scripts.RobotControl import RobotControl
 
 #
 robot = RobotControl()
-#robot.moveRobot("PushUp")
-robot.moveRobot("Reset")
+
+while True:
+    print(robot.getSafetyMode())
+    time.sleep(0.5)
+
+#robot.moveRobot("Load1")
+
+
 #robot.unloadMIR()
 #robot.loadMIR()
 

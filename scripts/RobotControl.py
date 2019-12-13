@@ -29,7 +29,7 @@ class RobotControl:
             logging.error("[RobotControl] Cannot connect to Universal robot")
 
         self.velocity = 0.5
-        self.acceleration = 1.2
+        self.acceleration = 2
         self.datastore = ""
         projectPath = rootpath.detect()
         with open(projectPath + "/scripts/PPP/grasp_config.json", 'r') as f:
@@ -91,8 +91,8 @@ class RobotControl:
             #TODO: WHEN GOING INTO PROTECTIVE MODE IT CRASHES
             if self.getSafetyMode() == 3: #If in protective stop
                 logging.info("[RobotControl] Robot did not reach destination, retrying...")
-                self.reInitializeRTDE()
                 while not self.isConnected():
+                    self.reInitializeRTDE()
                     self.reconnect()
                     time.sleep(1)
 
@@ -106,7 +106,7 @@ class RobotControl:
         logging.info(str(graspConfigString))
         logging.info("ActualQ: " + str(self.getQ()))
         for q in difference:
-            if abs(q) > 0.01:
+            if abs(q) > 0.03:
                 return False
         return True
 
@@ -153,14 +153,12 @@ class RobotControl:
 
     def putInBox(self, boxNumber):
         self.velocity = 1.5
-        self.acceleration = 3
         if(boxNumber == 0 or boxNumber == 1 or boxNumber == 2 or boxNumber == 3):
             self.moveRobot("OverBox"+str(boxNumber))
             self.openGripper()
         else:
             logging.error("[RobotControl] Invalid box number")
         self.velocity = 0.5
-        self.acceleration = 1.2
 
     def getRuntimeState(self):
         return self.rtde_r.getRuntimeState()
@@ -209,10 +207,13 @@ class RobotControl:
         self.moveRobot("MirDropZonePre1")
         self.moveRobotPath((["MirDropZonePre0"] + reversePath))
         self.velocity = 0.5
+        self.moveRobot("PreTwist")
+        self.moveRobot("Reset")
 
     def unloadMIR(self):
         movePath = ["PreTwist", "Load0", "Load1", "Load2", "LoadMir"]
-        reversePath = ["LoadMir", "Load2", "Load1", "Load0"]
+        reversePath = ["LoadMir", "Load2", "Load1"]
+        self.openGripper()
 
         self.velocity = 1.5
         self.moveRobotPath(movePath)
@@ -233,8 +234,16 @@ class RobotControl:
 
         # Load the boxes to the feeder
         self.velocity = 1.5
-        self.moveRobotPath(reversePath + ["PostFeeder"])
-        self.velocity = 0.3
+        self.moveRobotPath(reversePath)
+        self.velocity = 0.5
+        self.moveRobot("DumpBoxGrasp1")
+        self.velocity = 1.5
+        self.moveRobot("DumpBoxGrasp2")
+        self.moveRobot("DumpBoxGrasp1")
+        self.moveRobot("DumpBoxGrasp3")
+        self.velocity = 0.5
+        self.moveRobot("Load0")
+        self.moveRobot("PostFeeder")
         self.putBoxesInFeeder()
 
         # make sure the gripper is open
@@ -252,8 +261,17 @@ class RobotControl:
         self.moveRobot("MirBoxPreGrasp1")
 
         # Load the boxes to the feeder
+        self.velocity = 1.5
+        self.moveRobotPath(reversePath)
         self.velocity = 0.5
-        self.moveRobotPath(reversePath + ["PostFeeder"])
+        self.moveRobot("DumpBoxGrasp1")
+        self.velocity = 1.5
+        self.moveRobot("DumpBoxGrasp2")
+        self.moveRobot("DumpBoxGrasp1")
+        self.moveRobot("DumpBoxGrasp3")
+        self.velocity = 0.5
+        self.moveRobot("Load0")
+        self.moveRobot("PostFeeder")
         self.putBoxesInFeeder()
 
     def loadUnloadMIR(self):
