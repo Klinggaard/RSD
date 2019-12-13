@@ -63,10 +63,12 @@ class ExecuteOrder():
 
     def prepare_orders(self):
         #TODO: Time this. The orders should not take more than 10 minutes. If timeout is reached, dump orders
+        self.order_counter = 0  # To ensure that we reset the order_counter if an order was not finished
         while self.order_counter < 4:
             if self.mir.is_timeout():
                 self.stateMachine.change_state('Hold', 'Execute', 'Holding')
-                self.oeeInstance.update(sys_up=True, task="Holding", update_order=True, order_status=OEE.REJECTED)
+                if self.order_counter > 0:  # OEE now only adds a reject if the order was started
+                    self.oeeInstance.update(sys_up=True, task="Holding", update_order=True, order_status=OEE.REJECTED)
                 mir_id = self.mir.get_mission("GoToGr6")
                 self.mir.delete_from_queue(mir_id)
                 return False
@@ -246,7 +248,10 @@ class ExecuteOrder():
 
             if self.robot.isEmergencyStopped() and self.stateMachine.state != 'Aborted':
                 self.stateMachine.change_state('Abort', self.stateMachine.state, 'Aborting')
-                self.oeeInstance.update(sys_up=False, task=self.stateMachine.state, update_order=True, order_status=OEE.REJECTED)
+                if self.order_counter > 0:  # Emergency no longer adds a
+                    self.oeeInstance.update(sys_up=False, task=self.stateMachine.state, update_order=True, order_status=OEE.REJECTED)
+                else:
+                    self.oeeInstance.update(sys_up=False, task=self.stateMachine.state)
 
             execute_state = self.stateMachine.state
             logging.info("State : " + self.stateMachine.state)
