@@ -1,0 +1,87 @@
+# Table style file
+# Copyright (C) 2014 Musikhin Andrey <melomansegfault@gmail.com>
+
+#:kivy 1.0
+
+#:import get_color_from_hex kivy.utils.get_color_from_hex
+
+# GUI Structure
+<Table>:
+    orientation: 'vertical'
+
+    LabelPanel:
+
+        NullLabel:
+
+        # Other objects are added dynamically
+
+    ScrollViewTable:
+
+        ScrollViewBoxLayout:
+
+            NumberPanel:
+
+            GridTable:
+
+# Objects options
+<LabelPanel>:
+    orientation: 'horizontal'
+    height: 30
+    size_hint: 1, None
+
+<ScrollViewTable>:
+    size_hint: 1, 1
+    size: self.size
+    # orientation: 'vertical'
+    # scroll_timeout: 10
+    # scroll_distance: 32
+    
+
+<ScrollViewBoxLayout>:
+    orientation: 'horizontal'
+    cols: 2
+    size_hint: 1, None # Not scroll without it
+
+<NumberPanel>:
+    orientation: 'vertical'
+    size_hint: None, 1
+    width: 30
+
+<GridTable>:
+    size_hint: 1, None # Not scroll without it
+    canvas.before:
+        Color:
+            a: 0
+
+<NewLabel>:
+    text: 'Label'
+    size_hint: 1, 1
+    valign: 'middle'
+    halign: 'center'
+    max_lines: 1
+    # text_size: (self.width, self.height)
+    background_color: [.5, .5, .5, 1]
+
+
+<NullLabel>:
+    width: 30
+    size_hint: None, 1
+    background_color: [.5, .5, .5, 1]
+
+<NewNumberLabel>:
+    size_hint: 1, None
+    font_size: 14
+    # font_name: 'Terminus'
+    valign: 'middle'
+    halign: 'center'
+    background_color: [.5, .5, .5, 1]
+    # max_lines: 1
+    # text_size: (self.width, self.height)
+
+<NewCell>:
+    size_hint: 1, None
+    font_size: 12
+    height: 30
+    valign: 'middle'
+    # text_size: (self.width-20, self.height)
+    # halign: 'left'
