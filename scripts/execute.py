@@ -93,7 +93,7 @@ class ExecuteOrder():
             if self.mir.is_timeout():
                 self.stateMachine.change_state('Hold', 'Execute', 'Holding')
                 if self.started_packing:  # OEE now only adds a reject if the order was started
-                    self.oeeInstance.update(sys_up=True, task="Holding", update_order=True, order_status=OEE.REJECTED)
+                    self.oeeInstance.update(sys_up=True, task=self.stateMachine.state, update_order=True, order_status=OEE.REJECTED)
                 mir_id = self.mir.get_mission("GoToGr6")
                 self.mir.delete_from_queue(mir_id)
                 break
@@ -301,7 +301,7 @@ class ExecuteOrder():
 
             elif execute_state == 'Aborting':
                 if self.started_packing:
-                    self.oeeInstance.update(sys_up=True, task="Holding", update_order=True, order_status=OEE.REJECTED)
+                    self.oeeInstance.update(sys_up=True, task=self.stateMachine.state, update_order=True, order_status=OEE.REJECTED)
                 self.started_packing = False
                 self.stateMachine.change_state('SC', 'Aborting', 'Aborted')
 

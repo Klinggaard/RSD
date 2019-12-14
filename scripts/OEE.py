@@ -6,6 +6,7 @@ logging.basicConfig()
 log = logging.getLogger()
 log.setLevel(logging.INFO)
 
+
 class OEE:
     COMPLETED = 1
     REJECTED = 2
@@ -13,13 +14,13 @@ class OEE:
     __instance = None  # INITIAL INSTANCE OF CLASS
 
     @staticmethod
-    def getInstance(ict=4.25, pot=24*60, pst=60, start=False, task=None):
+    def getInstance(ict=4.25, pot=24 * 60, pst=60, start=False, task=None):
         if OEE.__instance == None:
             OEE(ict=ict, pot=pot, pst=pst, start=start, task=task)
         """ Static access method. """
         return OEE.__instance
 
-    def __init__(self, ict=1, pot=24*60, pst=60, start=False, task=None):
+    def __init__(self, ict=1, pot=24 * 60, pst=60, start=False, task=None):
         '''
         :param ict: Ideal Cycle Time (m)
         :param pot: Plant Operating Time (m)
@@ -33,16 +34,16 @@ class OEE:
         self._task = task
 
         self._ppt = self._pot - self._pst  # Planned Production Time
-        self._ot = 0.0       # Operating Time
-        self._sl = 0.0       # Speed Loss
-        self._dtl = 0.0      # Down Time Loss
-        self._neot = 0.0     # Net Operating Time
-        self._ql = 0.0       # Quality Loss
-        self._fpt = 0.0      # Fully Productive Time
+        self._ot = 0.0  # Operating Time
+        self._sl = 0.0  # Speed Loss
+        self._dtl = 0.0  # Down Time Loss
+        self._neot = 0.0  # Net Operating Time
+        self._ql = 0.0  # Quality Loss
+        self._fpt = 0.0  # Fully Productive Time
         self._timestamps = []
 
-        self.t_order = 0    # Total Pieces
-        self.g_order = 0    # Good Orders
+        self.t_order = 0  # Total Pieces
+        self.g_order = 0  # Good Orders
         self._started = False
 
         self.availability = 0
@@ -50,15 +51,16 @@ class OEE:
         self.quality = 0
         self.oee = 0
 
-
         self.last_save = time.time()
         self.save_interval = 300  # 5 minutes
+        self.t_suspended = 0
 
-        self.file = "OEE_LOG/OEE_LOG-"+time.strftime("%Y%m%d-%H%M%S")+".csv"
+        self.file = "OEE_LOG/OEE_LOG-" + time.strftime("%Y%m%d-%H%M%S") + ".csv"
         with open(self.file, mode='w') as my_file:
             file_writer = csv.writer(my_file, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
 
-            file_writer.writerow(['total_orders', 'good_orders', 'bad_orders', 'total_time','uptime','downtime'])
+            file_writer.writerow(
+                ['total_orders', 'good_orders', 'bad_orders', 'total_time', 'uptime', 'downtime', 'suspended'])
 
         if start:
             self.start(self._task)
@@ -76,7 +78,7 @@ class OEE:
 
     def _performance(self):
         assert self._started is True, "OEE module not started"
-        if(self._ot != 0):
+        if self._ot != 0:
             self.performance = (self._ict * self.t_order) / self._ot
         else:
             return 0
@@ -85,36 +87,39 @@ class OEE:
 
     def _quality(self):
         assert self._started is True, "OEE module not started"
-        if(self.t_order != 0):
-            self.quality = self.g_order/self.t_order
+        if self.t_order != 0:
+            self.quality = self.g_order / self.t_order
         else:
             return 0
         return self.quality
 
     def _oee(self):
         assert self._started is True, "OEE module not started"
-        self.oee = self.get_availability()*self.get_performance()*self.get_quality()
+        self.oee = self.get_availability() * self.get_performance() * self.get_quality()
         return self.oee
 
-    def _update(self, sys_up, t):
+    def _update(self, sys_up, t, task):
         assert self._started is True, "OEE module not started"
         self._timestamps.append(t)
+
         if not sys_up:
             self._dtl += self._timestamps[-1] - self._timestamps[-2]
+            if task == 'Suspended' or task == 'Suspending' or task == 'Unsuspending':
+                self.t_suspended += self._timestamps[-1] - self._timestamps[-2]
         else:
             self._ot += self._timestamps[-1] - self._timestamps[-2]
 
         # else:
         #     self.dtl = 0.0
-        #self._ot = self._ppt - self._dtl
-        #print(self.ot, self.ppt, self.dtl)
+        # self._ot = self._ppt - self._dtl
+        # print(self.ot, self.ppt, self.dtl)
         self._neot = self._ot - self._sl
         self._fpt = self._neot - self._ql
 
-
     def update(self, sys_up, task=None, update_order=False, order_status=None):
-        self._update(sys_up=sys_up, t=time.time()/60)
-        if time.time()-self.last_save > self.save_interval:
+        self._update(sys_up=sys_up, t=time.time() / 60, task=task)
+
+        if time.time() - self.last_save > self.save_interval:
             self.save_oee()
 
         if task is None:
@@ -132,20 +137,18 @@ class OEE:
             elif order_status == self.REJECTED:
                 self.t_order += 1
 
-
-
         ret = {
             'Availability': round(self._availability(), 3),
-            'Performance':  round(self._performance(), 3),
-            'Quality':      round(self._quality(), 3),
-            'OEE':          round(self._oee(), 3),
+            'Performance': round(self._performance(), 3),
+            'Quality': round(self._quality(), 3),
+            'OEE': round(self._oee(), 3),
             'Total Orders': self._availability(),
             'Good Orders': self._performance(),
             'Bad Orders': self._quality()
         }
 
         # resetting shift
-        if (self._timestamps[-1] - self._timestamps[0])/60 >= self._pot:
+        if (self._timestamps[-1] - self._timestamps[0]) / 60 >= self._pot:
             self.reset_shift()
             log.info("[OEE] Resetting shift")
             return ret
@@ -178,8 +181,8 @@ class OEE:
     def get_metrics(self):
         return {
             'Total Orders': self.t_order,
-            'Good Orders':  self.g_order,
-            'Bad Orders': self.t_order-self.g_order
+            'Good Orders': self.g_order,
+            'Bad Orders': self.t_order - self.g_order
         }
 
     def get_time(self):
@@ -192,16 +195,16 @@ class OEE:
     def reset_shift(self):
 
         self._ppt = self._pot - self._pst  # Planned Production Time
-        self._ot = 0.0       # Operating Time
-        self._sl = 0.0       # Speed Loss
-        self._dtl = 0.0      # Down Time Loss
-        self._neot = 0.0     # Net Operating Time
-        self._ql = 0.0       # Quality Loss
-        self._fpt = 0.0      # Fully Productive Time
+        self._ot = 0.0  # Operating Time
+        self._sl = 0.0  # Speed Loss
+        self._dtl = 0.0  # Down Time Loss
+        self._neot = 0.0  # Net Operating Time
+        self._ql = 0.0  # Quality Loss
+        self._fpt = 0.0  # Fully Productive Time
         self._timestamps = []
 
-        self.t_order = 0    # Total Pieces
-        self.g_order = 0    # Good Orders
+        self.t_order = 0  # Total Pieces
+        self.g_order = 0  # Good Orders
         self._started = False
 
         self.availability = 0
@@ -217,8 +220,12 @@ class OEE:
             file_writer = csv.writer(my_file, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
             metrics = self.get_metrics()
             my_time = self.get_time()
-            file_writer.writerow([metrics['Total Orders'], metrics['Good Orders'], metrics['Bad Orders'], my_time['Total time'], my_time['Up-time'], my_time['Down-time']])
+            file_writer.writerow(
+                [metrics['Total Orders'], metrics['Good Orders'], metrics['Bad Orders'], my_time['Total time'],
+                 my_time['Up-time'], my_time['Down-time'], self.t_suspended])
         self.last_save = time.time()
+
+
 '''
 oee = OEE(start=True, task="testing")
 c = 0
