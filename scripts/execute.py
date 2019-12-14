@@ -92,6 +92,7 @@ class ExecuteOrder():
             self.started_packing = True
             if self.mir.is_timeout():
                 self.stateMachine.change_state('Hold', 'Execute', 'Holding')
+                logging.info("Going to hold instead of preparing order because of timeout")
                 if self.started_packing:  # OEE now only adds a reject if the order was started
                     self.oeeInstance.update(sys_up=True, task=self.stateMachine.state, update_order=True, order_status=OEE.REJECTED)
                 mir_id = self.mir.get_mission("GoToGr6")
@@ -259,22 +260,24 @@ class ExecuteOrder():
                 pass
 
             elif execute_state == 'Execute':
-                # SEQUENCE WHEN EVERYTHING IS OK
                 if not self.mir.is_docked() and not self.waiting_for_mir:  # no need to go to suspend at the beginning
                     self.call_mir()
                 if self.mir.is_docked():
                     if not self.order_prepared:
                         if not self.mir_unloaded:
                             self.robot.unloadMIR()
-                            self.mir_unloaded = True # because it's a long sequence, in case we stop during it
+                            self.mir_unloaded = True
                             self.prepare_orders()
                         else:
                             self.prepare_orders()
-                        if self.order_prepared:
+                        if self.mir.get_time() < 500 and self.order_prepared:
                             self.pack_orders()
-                    '''elif not self.order_packed:
-                        if self.mir.get_time() < 500: #If there is less than 100 seconds left, dont try to pack
-                            self.pack_orders()'''
+                        if self.mir.get_time() > 500 and not self.order_packed:
+                            self.stateMachine.change_state('Hold', 'Execute', 'Holding')
+                            logging.info("Going to hold instead of packing, not enough time, MIR departures")
+                            self.oeeInstance.update(sys_up=True, task=self.stateMachine.state, update_order=True, order_status=OEE.REJECTED)
+                            mir_id = self.mir.get_mission("GoToGr6")
+                            self.mir.delete_from_queue(mir_id)
                 if self.order_prepared and self.order_packed:
                     self.order_prepared = False
                     self.order_packed = False
