@@ -20,7 +20,7 @@ class OEE:
         """ Static access method. """
         return OEE.__instance
 
-    def __init__(self, ict=1, pot=24 * 60, pst=60, start=False, task=None):
+    def __init__(self, ict=4.25, pot=24 * 60, pst=60, start=False, task=None):
         '''
         :param ict: Ideal Cycle Time (m)
         :param pot: Plant Operating Time (m)
