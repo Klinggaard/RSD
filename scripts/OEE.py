@@ -14,13 +14,13 @@ class OEE:
     __instance = None  # INITIAL INSTANCE OF CLASS
 
     @staticmethod
-    def getInstance(ict=4.25, pot=24 * 60, pst=60, start=False, task=None):
+    def getInstance(ict=3.0, pot=24 * 60, pst=60, start=False, task=None):
         if OEE.__instance == None:
             OEE(ict=ict, pot=pot, pst=pst, start=start, task=task)
         """ Static access method. """
         return OEE.__instance
 
-    def __init__(self, ict=4.25, pot=24 * 60, pst=60, start=False, task=None):
+    def __init__(self, ict=3.0, pot=24 * 60, pst=60, start=False, task=None):
         '''
         :param ict: Ideal Cycle Time (m)
         :param pot: Plant Operating Time (m)
