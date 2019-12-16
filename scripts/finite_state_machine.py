@@ -1,5 +1,7 @@
 import numpy as np
 
+from scripts.MesOrder import MesOrder
+
 
 class FiniteStateMachine:
     __instance = None   #INITIAL INSTANCE OF CLASS
@@ -78,6 +80,7 @@ class FiniteStateMachine:
                 if np.array_equal(row, arr):
                     self.state = to_state
                     flag = True
+                    MesOrder().log_state(self.state)
                     print('[PackML FSM]: Transition from {} to {} is successful.'.format(from_state, to_state))
             if not flag:
                 print('[PackML FSM]: Transition from {} to {} failed.'.format(from_state, to_state))

@@ -9,6 +9,8 @@ import logging
 class MesOrder():
     def __init__(self):
         self.url = 'http://10.10.19.20/orders'  #Server ip for
+        self.urlglob = 'http://10.10.19.20/'
+        self.headerglob = {'Content-Type': "application/json", 'Accept-Language': "en_US", 'Cache-Control': "no-cache"}
         self.counter = 0  # counter of processed orders
 
     def get_order(self):
@@ -81,3 +83,88 @@ class MesOrder():
         responsedelete = requests.delete(stmndel)
         self.counter += 1
         return self.counter
+
+    def log_state(self, state):
+        payload = None
+
+        # PML_Idle
+        if state == "Idle":
+            payload = {
+                "cell_id": 6,
+                "comment": ("State: " + state),
+                "event": "PML_Idle"
+            }
+
+        # PML_Execute
+        if state == "Executing":
+            payload = {
+                "cell_id": 6,
+                "comment": ("State: " + state),
+                "event": "PML_Execute"
+            }
+
+        # PML_Complete ???
+
+        # PML_Held
+        if state == "Held":
+            payload = {
+                "cell_id": 6,
+                "comment": ("State: " + state),
+                "event": "PML_Held"
+            }
+
+        # PML_Suspended
+        if state == "Suspended":
+            payload = {
+                "cell_id": 6,
+                "comment": ("State: " + state),
+                "event": "PML_Suspended"
+            }
+
+        # PML_Aborted
+        if state =="Aborted":
+            payload = {
+                "cell_id": 6,
+                "comment": ("State: " + state),
+                "event": "PML_Aborted"
+            }
+
+        # PML_Stopped
+        if state == "Stopped":
+            payload = {
+                "cell_id": 6,
+                "comment": ("State: " + state),
+                "event": "PML_Stopped"
+            }
+
+        payload = json.dumps(payload)
+        self.post_log(payload)
+        return
+
+    def log_order_start(self, order):
+        payload = {
+            "cell_id": 6,
+            "comment": "Started on "+str(order),
+            "event": "Order_Start"
+        }
+        payload = json.dumps(payload)
+        self.post_log(payload)
+        return
+
+    def log_order_done(self, order):
+        payload = {
+            "cell_id": 6,
+            "comment": "Done with "+str(order),
+            "event": "Order_Done"
+        }
+        payload = json.dumps(payload)
+        self.post_log(payload)
+        return
+
+    def post_log(self, payload):
+        url = self.urlglob+"/log"
+        headers = self.headerglob
+        response = requests.request("POST", url, data=payload, headers=headers)
+        print(response.text)
+        logs = json.loads(response.text)
+        return logs

@@ -106,6 +106,7 @@ class ExecuteOrder():
 
             if not self.current_order:
                 self.do_order = self.db_orders.get_put_order()
+                self.db_orders.log_order_start(self.do_order['id'])
                 self.current_order = True
                 self.reds = self.do_order["red"]
                 self.blues = self.do_order["blue"]
@@ -217,7 +218,7 @@ class ExecuteOrder():
             logging.info("MainThread : Sub-order completed")
             self.db_orders.delete_order(self.do_order)
             self.order_counter += 1
-
+            self.db_orders.log_order_done(self.do_order['id'])
             self.current_order = False
             if self.order_counter == 4:
                 self.order_counter = 0
@@ -283,6 +284,7 @@ class ExecuteOrder():
                     self.order_packed = False
                     self.waiting_for_mir = False
                     self.full_orders += 1
+                    self.db_orders.log_order_done(self.do_order['id'])
                     self.mir_unloaded = False
                     self.oeeInstance.update(sys_up=True, task=self.stateMachine.state, update_order=True, order_status=OEE.COMPLETED)
 
